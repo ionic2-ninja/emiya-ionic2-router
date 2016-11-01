@@ -41,6 +41,7 @@ interface NextPage {
     done: Function,
 }
 
+@Injectable()
 export class Router {
     private static decorators = [
         {type: Injectable},

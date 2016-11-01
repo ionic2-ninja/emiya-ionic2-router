@@ -1,5 +1,7 @@
 #Emiya Ionic2 Router
 
+####English readme will come soon
+
 ##How to install
 ```
 npm install --save emiya-ionic2-router
