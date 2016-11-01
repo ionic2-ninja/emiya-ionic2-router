@@ -9,6 +9,19 @@ import {Injectable} from '@angular/core';
 import {Token} from 'emiya-angular2-token'
 import {Utils} from 'emiya-js-utils'
 import {Event} from 'emiya-angular2-event'
+import {
+    EVENT_PREVENTED,
+    OTHER_TRANSITION,
+    EXIT_APP_PREVENTED,
+    NO_NEXT_PAGE,
+    PAGE_FORBIDDEN,
+    ROUTER_CONFIG_NOTFOUND_0,
+    ROUTER_CONFIG_NOTFOUND_1,
+    REDIRECT_CONFIG_NOTFOUND_0,
+    REDIRECT_CONFIG_NOTFOUND_1,
+    APP_EXIT,
+    PUSH_OVERRIDE
+} from './StatusCode'
 
 const DEBUG = true;
 const PUSH_BASE_STATE = false
@@ -114,7 +127,7 @@ export class Router {
                     let root = this.getRootPage()
 
                     if (this.rootOverride != false) {
-                        reject(-400)
+                        reject(PUSH_OVERRIDE)
                         return
                     }
                     this.app.getRootNav().setRoot(root.page, root.params, root.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
@@ -615,7 +628,7 @@ export class Router {
 
         if (this.checkIfBanned(name) == true)
             return new Promise((resolve, reject)=> {
-                reject(-240)
+                reject(PAGE_FORBIDDEN)
             })
 
 
@@ -649,7 +662,7 @@ export class Router {
             if (!toClass) {
                 this.debug('路由未指定');
                 return new Promise((resolve, reject)=> {
-                    reject(-250)
+                    reject(ROUTER_CONFIG_NOTFOUND_0)
                 })
             }
             let orgOptions = this.utils.deepCopy(options)
@@ -695,7 +708,7 @@ export class Router {
                 } else {
                     this.debug('路由 ' + name + ' 未配置');
                     return new Promise((resolve, reject)=> {
-                        reject(-260)
+                        reject(ROUTER_CONFIG_NOTFOUND_1)
                     })
                 }
             }
@@ -720,7 +733,7 @@ export class Router {
                     if (!toPage.redirect || !toPage.redirect.name) {
                         this.debug(name + ' 不满足token时的跳转页面未配置');
                         return new Promise((resolve, reject)=> {
-                            reject(-270)
+                            reject(REDIRECT_CONFIG_NOTFOUND_0)
                         })
                     }
 
@@ -729,7 +742,7 @@ export class Router {
                     if (!redirectPage) {
                         this.debug(name + ' 不满足token时的跳转页面未配置2');
                         return new Promise((resolve, reject)=> {
-                            reject(-280)
+                            reject(REDIRECT_CONFIG_NOTFOUND_1)
                         })
                     }
 
@@ -872,7 +885,7 @@ export class Router {
             }
         } else {
             return new Promise((resolve, reject)=> {
-                reject(-200)
+                reject(EVENT_PREVENTED)
             })
         }
     }
@@ -1034,11 +1047,11 @@ export class Router {
 
                     return new Promise((resolve, reject)=> {
                         //this.pauseOnpopstate = false
-                        reject(-300)
+                        reject(APP_EXIT)
                     })
                 } else {
                     return new Promise((resolve, reject)=> {
-                        reject(-220)
+                        reject(EXIT_APP_PREVENTED)
                     })
                 }
             }
@@ -1048,7 +1061,7 @@ export class Router {
         }
         else {
             return new Promise((resolve, reject)=> {
-                reject(-200)
+                reject(EVENT_PREVENTED)
             })
         }
 
@@ -1059,7 +1072,7 @@ export class Router {
             return this.pop(options, done, doNotGoHistory)
         else {
             return new Promise((resolve, reject)=> {
-                reject(-210)
+                reject(OTHER_TRANSITION)
             })
         }
     }
@@ -1159,7 +1172,7 @@ export class Router {
                 }
 
                 return new Promise((resolve, reject)=> {
-                    reject(-200)
+                    reject(EVENT_PREVENTED)
                 })
 
             }
@@ -1168,7 +1181,7 @@ export class Router {
         }
         else {
             return new Promise((resolve, reject)=> {
-                reject(-200)
+                reject(EVENT_PREVENTED)
             })
         }
     }
@@ -1232,7 +1245,7 @@ export class Router {
         }
         else {
             return new Promise((resolve, reject)=> {
-                reject(-200)
+                reject(EVENT_PREVENTED)
             })
         }
     }
@@ -1300,7 +1313,7 @@ export class Router {
         }
         else {
             return new Promise((resolve, reject)=> {
-                reject(-200)
+                reject(EVENT_PREVENTED)
             })
         }
     }
@@ -1392,7 +1405,7 @@ export class Router {
         if (config) {
             if (!this.setNextPage(config))
                 return new Promise((resolve, reject)=> {
-                    reject(-240)
+                    reject(PAGE_FORBIDDEN)
                 })
         }
         let _getNext = this.getNextPage()
@@ -1426,7 +1439,7 @@ export class Router {
                     canPush: this.canPush(_getNext.name)
                 }).defaultPrevented != false)
                 return new Promise((resolve, reject)=> {
-                    reject(-200)
+                    reject(EVENT_PREVENTED)
                 })
         }
 
@@ -1555,7 +1568,7 @@ export class Router {
         }
 
         return new Promise((resolve, reject)=> {
-            reject(-230)
+            reject(NO_NEXT_PAGE)
         })
 
     }

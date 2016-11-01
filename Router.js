@@ -7,6 +7,7 @@ var core_1 = require("@angular/core");
 var emiya_angular2_token_1 = require("emiya-angular2-token");
 var emiya_js_utils_1 = require("emiya-js-utils");
 var emiya_angular2_event_1 = require("emiya-angular2-event");
+var StatusCode_1 = require("./StatusCode");
 var DEBUG = true;
 var PUSH_BASE_STATE = false;
 //const PUSH_ANIMATE = {animation: "md-transition"};
@@ -78,7 +79,7 @@ var Router = (function () {
                     }
                     var root = _this.getRootPage();
                     if (_this.rootOverride != false) {
-                        reject(-400);
+                        reject(StatusCode_1.PUSH_OVERRIDE);
                         return;
                     }
                     _this.app.getRootNav().setRoot(root.page, root.params, root.options).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
@@ -521,7 +522,7 @@ var Router = (function () {
         }
         if (this.checkIfBanned(name) == true)
             return new Promise(function (resolve, reject) {
-                reject(-240);
+                reject(StatusCode_1.PAGE_FORBIDDEN);
             });
         var lastView = this.app.getRootNav().last(), pageConfig = this.getPageConfig(lastView ? lastView.instance : null), toPage = this.getPageConfig(name), toClass = this.getPage(name);
         if (emiya_angular2_event_1.Event.emit('push', {
@@ -551,7 +552,7 @@ var Router = (function () {
             if (!toClass) {
                 this.debug('路由未指定');
                 return new Promise(function (resolve, reject) {
-                    reject(-250);
+                    reject(StatusCode_1.ROUTER_CONFIG_NOTFOUND_0);
                 });
             }
             var orgOptions = this.utils.deepCopy(options);
@@ -596,7 +597,7 @@ var Router = (function () {
                 else {
                     this.debug('路由 ' + name + ' 未配置');
                     return new Promise(function (resolve, reject) {
-                        reject(-260);
+                        reject(StatusCode_1.ROUTER_CONFIG_NOTFOUND_1);
                     });
                 }
             }
@@ -618,14 +619,14 @@ var Router = (function () {
                     if (!toPage.redirect || !toPage.redirect.name) {
                         this.debug(name + ' 不满足token时的跳转页面未配置');
                         return new Promise(function (resolve, reject) {
-                            reject(-270);
+                            reject(StatusCode_1.REDIRECT_CONFIG_NOTFOUND_0);
                         });
                     }
                     var redirectPage_1 = this.getPageConfig(toPage.redirect.name);
                     if (!redirectPage_1) {
                         this.debug(name + ' 不满足token时的跳转页面未配置2');
                         return new Promise(function (resolve, reject) {
-                            reject(-280);
+                            reject(StatusCode_1.REDIRECT_CONFIG_NOTFOUND_1);
                         });
                     }
                     this.nextPage = {
@@ -757,7 +758,7 @@ var Router = (function () {
         }
         else {
             return new Promise(function (resolve, reject) {
-                reject(-200);
+                reject(StatusCode_1.EVENT_PREVENTED);
             });
         }
     };
@@ -908,19 +909,19 @@ var Router = (function () {
                     // }
                     return new Promise(function (resolve, reject) {
                         //this.pauseOnpopstate = false
-                        reject(-300);
+                        reject(StatusCode_1.APP_EXIT);
                     });
                 }
                 else {
                     return new Promise(function (resolve, reject) {
-                        reject(-220);
+                        reject(StatusCode_1.EXIT_APP_PREVENTED);
                     });
                 }
             }
         }
         else {
             return new Promise(function (resolve, reject) {
-                reject(-200);
+                reject(StatusCode_1.EVENT_PREVENTED);
             });
         }
     };
@@ -932,7 +933,7 @@ var Router = (function () {
             return this.pop(options, done, doNotGoHistory);
         else {
             return new Promise(function (resolve, reject) {
-                reject(-210);
+                reject(StatusCode_1.OTHER_TRANSITION);
             });
         }
     };
@@ -1035,13 +1036,13 @@ var Router = (function () {
                     }
                 }
                 return new Promise(function (resolve, reject) {
-                    reject(-200);
+                    reject(StatusCode_1.EVENT_PREVENTED);
                 });
             }
         }
         else {
             return new Promise(function (resolve, reject) {
-                reject(-200);
+                reject(StatusCode_1.EVENT_PREVENTED);
             });
         }
     };
@@ -1103,7 +1104,7 @@ var Router = (function () {
         }
         else {
             return new Promise(function (resolve, reject) {
-                reject(-200);
+                reject(StatusCode_1.EVENT_PREVENTED);
             });
         }
     };
@@ -1171,7 +1172,7 @@ var Router = (function () {
         }
         else {
             return new Promise(function (resolve, reject) {
-                reject(-200);
+                reject(StatusCode_1.EVENT_PREVENTED);
             });
         }
     };
@@ -1269,7 +1270,7 @@ var Router = (function () {
         if (config) {
             if (!this.setNextPage(config))
                 return new Promise(function (resolve, reject) {
-                    reject(-240);
+                    reject(StatusCode_1.PAGE_FORBIDDEN);
                 });
         }
         var _getNext = this.getNextPage();
@@ -1301,7 +1302,7 @@ var Router = (function () {
                 canPush: this.canPush(_getNext.name)
             }).defaultPrevented != false)
                 return new Promise(function (resolve, reject) {
-                    reject(-200);
+                    reject(StatusCode_1.EVENT_PREVENTED);
                 });
         }
         if (this.nextPage && (!currentPage || !currentPage.next || (currentPage.next.force != true)) /*&& this.utils.notNull(this.nextPage.page)*/) {
@@ -1428,7 +1429,7 @@ var Router = (function () {
             }
         }
         return new Promise(function (resolve, reject) {
-            reject(-230);
+            reject(StatusCode_1.NO_NEXT_PAGE);
         });
     };
     Router.prototype.debug = function (arg1) {
