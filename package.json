@@ -1,0 +1,35 @@
+{
+  "name": "emiya-ionic2-router",
+  "version": "1.0.2",
+  "description": "An ionic2 based router which include url route and login management and many other features..",
+  "main": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "emiya-js-utils": ">=1.0.0",
+    "emiya-angular2-event": ">=1.0.0",
+    "emiya-angular2-token": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ionic2-ninja/emiya-ionic2-router.git"
+  },
+  "keywords": [
+    "router",
+    "route",
+    "ionic2",
+    "angular2",
+    "es6",
+    "js",
+    "javascript",
+    "urlrouter",
+    "uirouter"
+  ],
+  "author": "EmiyaLee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ionic2-ninja/emiya-ionic2-router/issues"
+  },
+  "homepage": "https://github.com/ionic2-ninja/emiya-ionic2-router#readme"
+}
