@@ -929,7 +929,7 @@ export class Router {
         //alert(JSON.stringify(this.utils.mergeObject(options, POP_ANIMATE)))
     }
 
-    public canGoBack() {
+    public canGoBack=()=> {
         return this.getGoBackPage().name != null
     }
 

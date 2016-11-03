@@ -37,6 +37,9 @@ var Router = (function () {
         this.packageName = ' ';
         this.packageVersion = ' ';
         this.defaultBackButtonPrior = 101;
+        this.canGoBack = function () {
+            return _this.getGoBackPage().name != null;
+        };
         this.enableOnpopstate();
         this.registerBackButtonAction();
         this.rootOverrideMonitor = this.app.viewWillEnter.subscribe(function (ev) {
@@ -799,9 +802,6 @@ var Router = (function () {
             return { name: null, params: null, component: null };
         }
         //alert(JSON.stringify(this.utils.mergeObject(options, POP_ANIMATE)))
-    };
-    Router.prototype.canGoBack = function () {
-        return this.getGoBackPage().name != null;
     };
     Router.prototype.getRootPageConfig = function () {
         for (var c in this.config)
