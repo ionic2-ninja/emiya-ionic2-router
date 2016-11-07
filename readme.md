@@ -127,7 +127,7 @@ export const Routes = {
 ### 路由表加载
 
 ```
-import {Router} from 'Router';
+import {Router} from 'emiya-ionic2-router';
 import {Routes} from 'Routes';
 
 @Component({
@@ -151,7 +151,7 @@ constructor(platform: Platform, router: Router,) {
 ### push&pop实例
 
 ```
-import {Router} from 'Router';
+import {Router} from 'emiya-ionic2-router';
 import {MyPraisePage} from '../pages/MyPraisePage/MyPraisePage';
 
 export class TabsPage {
@@ -180,10 +180,31 @@ constructor(router: Router) {
 }
 ```
 
+### Token的设置与删除
+
+```
+import {Router} from 'emiya-angular2-token';
+
+export class TabsPage {
+
+constructor() {
+    //set tokon
+    Token.set('uuid','fasfasjfasjlk9312jkkfasjfaskl')
+    Token.set('token','fasfasjfasjlk9312jkkfasjfaskl')
+    //delete token
+    Token.delete('uuid')
+    Token.delete('token')
+    //check if token exists
+    Token.has('uuid')   //true or false
+    Token.has('token')
+  }
+}
+```
+
 ### 路由事件监听&拦截实例
 ```
-import {Router} from 'Router';
-import {EventSync} from 'EventSync';
+import {Router} from 'emiya-ionic2-router';
+import {Event} from 'emiya-angular2-event';
 
 export class MyApp {
 
@@ -223,7 +244,7 @@ stopPropagation：执行stopPropagation()
 
 ### 自定义退出应用行为实例
 ```
-import {Router} from 'Router';
+import {Router} from 'emiya-ionic2-router';
 
 export class MyApp {
 
