@@ -180,7 +180,7 @@ constructor(router: Router) {
 }
 ```
 
-### Token的设置与删除
+### How to set and delete token
 
 ```
 import {Router} from 'emiya-angular2-token';
@@ -200,6 +200,7 @@ constructor() {
   }
 }
 ```
+#####more can be found [emiya-angular2-token](https://github.com/ionic2-ninja/emiya-angular2-token)
 
 ### 路由事件监听&拦截实例
 ```
