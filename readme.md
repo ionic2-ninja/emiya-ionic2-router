@@ -42,13 +42,13 @@ export const Routes = {
    //homepage example
   'Tabs': {//identity for page
     page: TabsPage, //component of this page
-    params: {index:1}, //optional,default page params(use ionic2/NavParams to read)
-    options: {duration:0},  //optional,nav options,see ionic2 doc/navcontroller
+    params: {index:1}, //optional,default page params(see ionic2/NavParams for more)
+    options: {duration:0},  //optional,nav options(see ionic2 doc/navcontroller for more)
     done: function(ev){do something..},  //optional,callback after push complete
     root: true,  //is it homepage?true or false,must be unique,default is false
-    url: '/tabs',  //url schema for this page(must be unique,support restful style,like /tabs/:uuid/:name),leave it null  equal to set url to "/Tabs"
+    url: '/tabs',  //url schema for this page(must be unique,support restful style,like /tabs/:uuid/:name),leave it null  equal to set url to "/{{pageIdentity}}"
     enable: true  //is this page enabled?true or false,default is true
-    title: 'Homepage', //optional,title for this page(for now is just a descrition)
+    title: 'Homepage', //optional,title for this page,default is "/{{pageIdentity}}"(for now is just a descrition)
   },
   
   //login page example
