@@ -1,6 +1,6 @@
 {
   "name": "emiya-ionic2-router",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "An ionic2 based router which include url route and login management and many other features..",
   "main": "index.d.ts",
   "scripts": {
@@ -19,12 +19,24 @@
     "router",
     "route",
     "ionic2",
+    "ionic",
+    "angular',
     "angular2",
     "es6",
+    "ecmascript",
+    "typescript",
     "js",
     "javascript",
     "urlrouter",
-    "uirouter"
+    "uirouter",
+    "urlroute",
+    "uiroute",
+    "push",
+    "pop",
+    "nav",
+    "navigate",
+    "navigation",
+    "component"
   ],
   "author": "EmiyaLee",
   "license": "MIT",

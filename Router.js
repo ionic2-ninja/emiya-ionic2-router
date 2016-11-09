@@ -1,5 +1,5 @@
 /**
- * Created by ruimin on 16/9/19.
+ * Created by EmiyaLee
  */
 'use strict';
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -445,7 +445,7 @@ var Router = (function () {
         if (url)
             url = url.url;
         else
-            url = '/' + this.app.getRootNav().last()['name'];
+            url = '/' + pageConfig.id;
         //alert(url)
         if (this.utils.notNull(url) && url.substr(0, 1) != '/')
             url += '/';
@@ -461,13 +461,13 @@ var Router = (function () {
                 name: pageConfig ? pageConfig.id : this.app.getRootNav().last()['name'],
                 params: this.app.getRootNav().last()['data'],
                 url: url
-            }, (pageConfig && this.utils.notNull(pageConfig.title)) ? pageConfig.title : this.app.getRootNav().last()['name'], url);
+            }, (pageConfig && this.utils.notNull(pageConfig.title)) ? pageConfig.title : pageConfig.id, url);
         else
             window.history.replaceState({
                 name: pageConfig ? pageConfig.id : this.app.getRootNav().last()['name'],
                 params: this.app.getRootNav().last()['data'],
                 url: url
-            }, (pageConfig && this.utils.notNull(pageConfig.title)) ? pageConfig.title : this.app.getRootNav().last()['name'], url);
+            }, (pageConfig && this.utils.notNull(pageConfig.title)) ? pageConfig.title : pageConfig.id, url);
         //alert(url)
         //alert(window.location.pathname == '/' ? '' : window.location.pathname)
     };
@@ -847,7 +847,7 @@ var Router = (function () {
                 }
                 else
                     popPage = this.getRootPageConfig();
-                return this.app.getRootNav().push(popPage.page, popPage.params, FAKE_POP_ANIMATION).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
+                return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                     _this.tokenHook();
                     _this.cleanupPopStack(null, true);
                     _this.pushState(true);
@@ -1018,7 +1018,7 @@ var Router = (function () {
             else {
                 for (var c in this.config) {
                     if (this.config[c].root == true) {
-                        return this.app.getRootNav().push(this.config[c].page, this.config[c].params, FAKE_POP_ANIMATION).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
+                        return this.app.getRootNav().push(this.config[c].page, this.config[c].params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                             _this.tokenHook();
                             _this.cleanupPopStack(null, true);
                             _this.pushState(true);

@@ -1,100 +1,103 @@
 #Emiya Ionic2 Router
 
-####English readme will come soon
-
 ##How to install
 ```
 npm install --save emiya-ionic2-router
+cordova plugin add cordova-plugin-app-version (optional but strongly recommanded)
 ```
 
 
 ## Features
 
-####集成与路由相关的各种功能，包括以下:
+* config the route in one place
+* support url route just like what ionic1 did
+* support id route
+* support onpopstate event in browser(pop by clicking back button)
+* support android hardware back button hook to customize app exit behavior
+* intelligently route between (login/non-login/login-required/normal/guide/home) pages
+* provide push/pop event,support event prevention
+* support pop behavior customization for each page
+* manage page access based on [Token](https://github.com/ionic2-ninja/emiya-angular2-token)
 
-* 统一配置的路由表
-* 基于url的页面路由
-* 浏览器后退及android hardware back button事件监视支持，并提供应用退出回调接口
-* 智能管理页面路由(需要登录的页面/不需要登录页面/登录页/首次引导页 的互相切换管理)
-* 提供push/pop类型操作的事件接口，可以实现事件监听及拦截操作
-* 支持页面后退行为(pop)的强制指定配置
 
-### 路由表配置
+## Usage
+
+
+##### route configuration
 
 ```
+//import all the componets you want to route 
 import {TabsPage} from '../pages/TabsPage/TabsPage';
 import {PwdLoginPage} from '../pages/PwdLoginPage/PwdLoginPage';
-import {MyPraisePage} from '../pages/MyPraisePage/MyPraisePage';
+import {MyFavourPage} from '../pages/MyPraisePage/MyFavourPage';
 import {AgreementPage} from '../pages/AgreementPage/AgreementPage';
 import {WelCome} from '../pages/WelCome/WelCome';
 import {HomePage} from '../pages/HomePage/HomePage';
 import {FindPage} from '../pages/FindPage/FindPage';
 
 export const Routes = {
-   //主页配置例子
-  'Tabs': {//页面的唯一标识
-    page: TabsPage, //页面的对应的component
-    params: {index:1}, //页面初始化的默认参数,该参数随后可通过ionic2提供的NavParams服务取得
-    options: {duration:0},  //跳转页面时的默认选项,具体参数请参考ionic2文档的navcontroller的option部分
-    done: null,  //跳转页面时的回调function
-    root: true,  //是否是主页(唯一)
-    url: '/tabs',  //页面的url标识(唯一,支持restful风歌,如/tabs/:uuid/:name)，如果不配置则默认页面url标识为 /{页面唯一标识}
-    enable: true  //该页面是否启用
-    title: '主页', //页面title
+   //homepage example
+  'Tabs': {//identity for page
+    page: TabsPage, //component of this page
+    params: {index:1}, //optional,default page params(use ionic2/NavParams to read)
+    options: {duration:0},  //optional,nav options,see ionic2 doc/navcontroller
+    done: function(ev){do something..},  //optional,callback after push complete
+    root: true,  //is it homepage?true or false,must be unique,default is false
+    url: '/tabs',  //url schema for this page(must be unique,support restful style,like /tabs/:uuid/:name),leave it null  equal to set url to "/Tabs"
+    enable: true  //is this page enabled?true or false,default is true
+    title: 'Homepage', //optional,title for this page(for now is just a descrition)
   },
-  //登陆页配置例子
+  
+  //login page example
   'PwdLogin': {
     page: PwdLoginPage,
-    params: null,
-    options: null,
-    done: null,
-    tokens: ['token', 'uuid'],  //该页面所关联的token
-    tokensLocation: ['local', 'local'], //该页面所关联token的存放位置，默认就是local(本地存储)，可选为session(回话存储)
-    reverse: true, //true表示当页面所关联的token存在时，该页面不允许进入，默认false
-    next: { //在不满足进入该页面token条件的情况下尝试进入该页面时抑或是当前页面是该页面时token条件满足了的情况下导向的下一个页面(非必要配置项，配置该选项时reverse参数必须为true)
-      name: 'NewsdetailPage', //下一个页面唯一标识
+    reverse: true, //optional,true or false(default),use together with option [tokens]
+    tokens: ['token', 'uuid'],  //when option [reverse] = false,to access this page we need 2 tokens which call 'token' & 'uuid',the other way,we can only access the page when these 2 tokens inexist. 
+    tokensLocation: ['local', 'local'], //optional,local(default)/session,the location of the token
+    next: {//optional,this only works when option [reverse]=true and [tokens] has been set.Router will try to redirect to the page you config here when : ((try to access the page without meet the token condition)||(login success))&&((the router can not determine the proper next target page)||(next.force==true)) 
+      name: 'TabsPage', //next page's id
       params: null,
       options: null,
       done: null,
-      force:false  //true表示该配置优先及高于router内部动态管理的目标页面配置，false则表示该配置仅在router内部自动管理的目标页面配置未找到时才生效
+      force:false  //optional,true or false(default),set to true tells the Router page config here has a higher prior then the target page which determine by router
     },
     url: '/PwdLoginPage'，
-    title: '密码登陆页'
+    title: 'Password Login'
   },
 
-  //需要已登录状态页面的配置例子
-  'MyPraise': {
-    page: MyPraisePage,
+  //login-required page example
+  'MyFavour': {
+    page: MyFavourPage,
     params: null,
     options: null,
     done: null,
     tokens: ['token', 'uuid'],
-    redirect: { //在不满足进入该页面token条件的情况下尝试进入该页面时导向的下一个页面(配置该选项时reverse参数必须为false，或者不配置)
-      name: 'CodeLoginPage',
+    redirect: { //Router will redirect to the page you config here when you try to access the page without meet the token condition
+      name: 'PwdLoginPage',
       params: null,
       options: null,
       done: null
     },
-    url: '/myPraise',
-    title: '我的点赞'
+    url: '/myFavour',
+    title: 'MyFavour'
   },
 
-   //普通页面的配置例子
+   //normal page example
   'Agreement': {
     page: AgreementPage,
     url: '/agreementPage',
-    title: '用户协议',
-    pop: { //当用户在此页面点击返回按钮时且当前页面栈里找不到上一级页面时的指定跳转页面（非必须配置）
+    title: 'user_agreement',
+    pop: { //optional,when user try to pop from this page but there is no previous page in the navStack,router will redirect(fake pop animation) to page config here
       name: 'TabsPage',
       params: null,
       options: null,
       done: null,
-      force:false //true表示无论页面栈里有没有上一级页面都强制跳向配置页，默认为false
+      force:false //optional,true or false(default),set to true means always pop to the page config here 
     }
   },
 
 
-  //首次引导页配置例子
+  //guide page example
   'WelCome': {
     page: WelComePage,
     url: '/weleome',
@@ -104,27 +107,23 @@ export const Routes = {
       options: null,
       done: null
     },
-    guide: { //该选项表示该页是首次引导页
-      always: false, //true表示每次进入app均显示此页，默认false
-      duration: 6000 //表示在6000毫秒后自动跳向主页，默认不自动跳转
+    guide: { //mean it is a guide page
+      always: false, //optional,true or false(default).when true,guide page will show each time you open app,when false,it only show when app first installed or updated
+      duration: 6000 //optional,will leave guide page automatically after 6000 ms,default is never leave automatically
     },
-    title: '欢迎',
+    title: 'welcome',
   },
 
 
-  //最小化路由配置例子
+  //minimal config example
   'homeIndexTab': {
     page: HomePage,
-  },
-  'homeIndexTab': {
-    page: FindPage,，
-    url:'/findIndex'
   }
 
 }
 ```
 
-### 路由表加载
+### load configuration
 
 ```
 import {Router} from 'emiya-ionic2-router';
@@ -136,11 +135,10 @@ import {Routes} from 'Routes';
 export class MyApp {
 
 constructor(platform: Platform, router: Router,) {
-    router.setVersion('Hello World',10000) //在加载路由之前手动告诉router当前应用的内部版本号，（这步可忽略，此时router会自动尝试通过cordova插件 cordova-plugin-app-version去获取相应信息）
-    router.load(Routes); //加载路由，
+    router.setVersion('Hello World',10000) //optional,shoulde be called before load() to tell router about app version.When this step skipped,the router will try to get app version from cordova-plugin-app-version automatically
+    let result=router.load(Routes); //load config
+    result.then((ev)=>{}).catch((err)=>{}) //it's a promise which tell you whether the first page is being pushed successfully or not
     platform.ready().then(() => {
-      // Okay, so the platform is ready and our plugins are available.
-      // Here you can do any higher level native things you might need.
       StatusBar.styleDefault();
       Splashscreen.hide();
     });
@@ -148,33 +146,38 @@ constructor(platform: Platform, router: Router,) {
 }
 ```
 
-### push&pop实例
+#####Important: router.load() will load home/first page automatically,so DO NOT set it in any other place!
+
+
+### how to push&pop
 
 ```
 import {Router} from 'emiya-ionic2-router';
-import {MyPraisePage} from '../pages/MyPraisePage/MyPraisePage';
+import {MyPraisePage} from '../pages/MyFavourPage/MyFavourPage';
 
 export class TabsPage {
 
 constructor(router: Router) {
-    //通过页面唯一标识跳转
-    router.push('MyPraise',{index:2},{duration:500},(hasCompleted, isAsync, enteringName, leavingName, direction)=>{//stuff when done})
+    //push via id
+    router.push('MyFavour',{index:2},{duration:500},(hasCompleted, isAsync, enteringName, leavingName, direction)=>{//stuff when completed})
     
-    //通过页面url标识跳转
-    router.push('/myPraise',{index:2},{duration:500})
+    //push via url
+    router.push('/myFavour',{index:2},{duration:500})
     .then((hasCompleted, isAsync, enteringName, leavingName, direction)=>{})
     .catch((hasCompleted, isAsync, enteringName, leavingName, direction)=>{})
     
-    //直接通过component跳转
-    router.push(MyPraisePage,{index:2},{duration:500})
+    //push via component
+    router.push(MyFavourPage,{index:2},{duration:500})
     
-    //后退操作
+    //pop
     router.pop().then((hasCompleted, isAsync, enteringName, leavingName, direction)=>{})
     .catch((hasCompleted, isAsync, enteringName, leavingName, direction)=>{})
     
-    router.pop({duration:0},(hasCompleted, isAsync, enteringName, leavingName, direction)=>{//stuff when done})
+    router.pop({duration:0},(hasCompleted, isAsync, enteringName, leavingName, direction)=>{//stuff when completed})
     
     router.pop({duration:0})
+    
+    router.popSafe() //pop will fail when there is another page transition happening,it's useful for user-click pop event to avoid some transition bugs
     
   }
 }
@@ -202,7 +205,7 @@ constructor() {
 ```
 #####more can be found [emiya-angular2-token](https://github.com/ionic2-ninja/emiya-angular2-token)
 
-### 路由事件监听&拦截实例
+### route event listen&intercept example
 ```
 import {Router} from 'emiya-ionic2-router';
 import {Event} from 'emiya-angular2-event';
@@ -210,40 +213,40 @@ import {Event} from 'emiya-angular2-event';
 export class MyApp {
 
 constructor(router: Router) {
-    //push事件监听
+    //push event listen
     let pushListenr=EventSync.subscribe('push',(ev,data)=>{})
-    //pop事件监听
+    //pop event listen
     EventSync.subscribe('pop',(ev,data)=>{})
     
-    //事件监听取消
+    //unlisten to event
     pushListenr.unsubscribe()
   }
 }
 ```
 
-######路由事件ev参数
+##### event parameters
+
+* ev
 ```
-preventDefault:执行preventDefault()表示阻止事件对应操作的发生
-stopPropagation：执行stopPropagation()表示阻止该事件在监视链往后的广播
-defaultPrevented：preventDefault操作会设置该参数为true，默认false
-propagationPrevented：stopPropagation操作会设置该参数为true，默认false
+preventDefault():prevent the operation
+stopPropagation()：stop the event to propagate
+defaultPrevented：default is false,preventDefault() will set it to true
+propagationPrevented：default is false,stopPropagation() will set it to true
 ```
 
-######路由事件data参数
+* data
 ```
-fromPage:表示当前页面
-toPage：表示将要进入的页面
-callParams：事件对应的push或pop操作的相关调用参数
-callerName：触发该事件的方法名称
-instance：触发该事件的方法
-canPush：表示该push操作是否允许（如果页面需要被重定向则为false）,此参数仅限push事件才有
-canGoBack：表示该pop操作是否允许,此参数仅限pop事件才有
-preventDefault:执行preventDefault()表示阻止事件对应操作的发生
-stopPropagation：执行stopPropagation()
+fromPage:current page
+toPage：the page will transit to
+callParams：the original params of push&pop operation
+callerName：the name of method which trigger this event
+instance：the method which trigger this event
+canPush：if the push operation is permitted by router
+canGoBack：if the pop operation is permitted by router
 ```
 
 
-### 自定义退出应用行为实例
+### customize app exit behavior
 ```
 import {Router} from 'emiya-ionic2-router';
 
@@ -251,28 +254,28 @@ export class MyApp {
 
 constructor(router: Router) {
     router.setExitHook(()=>{
-     return true //返回true表示继续执行退出应用的操作，false反之
-    },101 /*优先级，默认为101，仅android原生app运行环境生效*/)
+     return true //true will exit app,otherwise prevent it
+    },101 /*optional,hook prior，default is 101，only work in android runtime*/)
   }
 }
 ```
 
-### 全局状态码
+### global status code
 
-* -200该操作事件被阻止
-* -210由于当前正在执行其他页面切换操作，因此不允许此操作
-* -220应用退出操作被阻止
-* -230next操作无法找到合适的目标跳转页
-* -240尝试进入被禁用的页面
-* -250找不到页面对应路由配置项
-* -260找不到页面对应路由配置项
-* -270所需token不存在时的重定向页面未配置
-* -280所需token不存在时的重定向页面未配置
-* -300应用退出
-* -400进入应用加载首页的操作被重载
+* -200 operation is prevented
+* -210 operation is not permitted because of another page transition
+* -220 app exit is prevented
+* -230 next()can not found a proper next page
+* -240 try to push a page which is disabled
+* -250 can not found page config
+* -260 can not found page config
+* -270 can not found redirect page config
+* -280 can not found redirect page config
+* -300 app exited
+* -400 fail to push first page because it's overrided by another transition 
 
-* false表示该错误由ionic2&angular2所抛出
-* true表示成功
+* false throw by ionic2&angular2 stock api
+* true success
 
 
 ### Api Referrences(todo..)
