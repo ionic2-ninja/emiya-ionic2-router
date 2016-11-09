@@ -19,6 +19,9 @@ cordova plugin add cordova-plugin-app-version (optional but strongly recommanded
 * support pop behavior customization for each page
 * manage page access based on [Token](https://github.com/ionic2-ninja/emiya-angular2-token)
 
+##[>>>demo here<<<](https://github.com/ionic2-ninja/ionic2-demo)
+
+
 
 ## Usage
 
