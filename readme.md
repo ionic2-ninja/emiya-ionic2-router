@@ -81,7 +81,7 @@ export const Routes = {
       options: null,
       done: null
     },
-    url: '/myFavour',
+    url: '/myFavour/:userid/:catagory',
     title: 'MyFavour'
   },
 
@@ -156,21 +156,21 @@ constructor(platform: Platform, router: Router,) {
 
 ```
 import {Router} from 'emiya-ionic2-router';
-import {MyPraisePage} from '../pages/MyFavourPage/MyFavourPage';
+import {MyFavour} from '../pages/MyFavourPage/MyFavourPage';
 
 export class TabsPage {
 
 constructor(router: Router) {
     //push via id
-    router.push('MyFavour',{index:2},{duration:500},(hasCompleted, isAsync, enteringName, leavingName, direction)=>{//stuff when completed})
+    router.push('MyFavour',{index:2,userid:'user001',catagory:'cata002'},{duration:500},(hasCompleted, isAsync, enteringName, leavingName, direction)=>{//stuff when completed})
     
     //push via url
-    router.push('/myFavour',{index:2},{duration:500})
+    router.push('/myFavour/user001/cata002',{index:2},{duration:500})
     .then((hasCompleted, isAsync, enteringName, leavingName, direction)=>{})
     .catch((hasCompleted, isAsync, enteringName, leavingName, direction)=>{})
     
     //push via component
-    router.push(MyFavourPage,{index:2},{duration:500})
+    router.push(MyFavourPage,{index:2,userid:'user001',catagory:'cata002'},{duration:500})
     
     //pop
     router.pop().then((hasCompleted, isAsync, enteringName, leavingName, direction)=>{})
