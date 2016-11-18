@@ -1,0 +1,35 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\node.exe',
+1 verbose cli   'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'publish' ]
+2 info using npm@3.10.3
+3 info using node@v7.0.0-nightly20160712ef1f7661c7
+4 verbose publish [ '.' ]
+5 verbose stack Error: Failed to parse json
+5 verbose stack Unexpected token '"' at 54:5
+5 verbose stack     "cordova",
+5 verbose stack     ^
+5 verbose stack     at parseError (C:\Program Files\nodejs\node_modules\npm\node_modules\read-package-json\read-json.js:390:11)
+5 verbose stack     at parseJson (C:\Program Files\nodejs\node_modules\npm\node_modules\read-package-json\read-json.js:79:23)
+5 verbose stack     at C:\Program Files\nodejs\node_modules\npm\node_modules\read-package-json\read-json.js:48:5
+5 verbose stack     at C:\Program Files\nodejs\node_modules\npm\node_modules\graceful-fs\graceful-fs.js:78:16
+5 verbose stack     at tryToString (fs.js:455:3)
+5 verbose stack     at FSReqWrap.readFileAfterClose [as oncomplete] (fs.js:442:12)
+6 verbose cwd D:\DATA\hs\git\emiya-ionic2-router
+7 error Windows_NT 10.0.10586
+8 error argv "C:\\Program Files\\nodejs\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "publish"
+9 error node v7.0.0-nightly20160712ef1f7661c7
+10 error npm  v3.10.3
+11 error file D:\DATA\hs\git\emiya-ionic2-router\package.json
+12 error code EJSONPARSE
+13 error Failed to parse json
+13 error Unexpected token '"' at 54:5
+13 error     "cordova",
+13 error     ^
+14 error File: D:\DATA\hs\git\emiya-ionic2-router\package.json
+15 error Failed to parse package.json data.
+15 error package.json must be actual JSON, not just JavaScript.
+15 error
+15 error This is not a bug in npm.
+15 error Tell the package author to fix their package.json file. JSON.parse
+16 verbose exit [ 1, true ]
