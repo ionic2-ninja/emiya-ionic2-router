@@ -75,7 +75,7 @@ export class Router {
 
         this.registerBackButtonAction()
 
-        this.rootOverrideMonitor = this.app.viewWillEnter.subscribe((ev)=> {
+        this.rootOverrideMonitor = this.app.viewWillEnter.subscribe((ev) => {
             this.rootOverride = true
             this.rootOverrideMonitor.unsubscribe()
             this.rootOverrideMonitor = null
@@ -87,7 +87,7 @@ export class Router {
     private registerBackButtonAction(backButtonPrior = this.defaultBackButtonPrior) {
         if (this.backButtonCallback)
             this.backButtonCallback()
-        this.backButtonCallback = this.platform.registerBackButtonAction(()=> {
+        this.backButtonCallback = this.platform.registerBackButtonAction(() => {
             this.pop()
         }, this.utils.notNull(backButtonPrior) ? backButtonPrior : this.defaultBackButtonPrior)
     }
@@ -103,13 +103,13 @@ export class Router {
     }
 
     private loadRootPage() {
-        return new Promise((resolve, reject)=> {
+        return new Promise((resolve, reject) => {
 
 
             //console.log(root)
             //console.log(this.platform.version())
             this.platform.ready().then(() => {
-                let defaultP = new Promise((resolve, reject)=> {
+                let defaultP = new Promise((resolve, reject) => {
                     resolve(' ')
                 }), p0 = defaultP, p1 = defaultP;
 
@@ -131,13 +131,13 @@ export class Router {
                         reject(PUSH_OVERRIDE)
                         return
                     }
-                    this.app.getRootNav().setRoot(root.page, root.params, root.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    this.app.getRootNav().setRoot(root.page, root.params, root.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         //if (root.doNotReplaceState != true)
                         //console.log(this.app.getRootNav().last())
                         this.pushState(root.doNotReplaceState != true)
                         if (this.utils.notNull(root.duration)) {
                             let timer, monitor
-                            timer = setTimeout(()=> {
+                            timer = setTimeout(() => {
                                 if (monitor) {
                                     monitor.unsubscribe()
                                     monitor = null
@@ -148,7 +148,7 @@ export class Router {
 
                             //alert()
 
-                            monitor = this.app.viewWillEnter.subscribe((ev)=> {
+                            monitor = this.app.viewWillEnter.subscribe((ev) => {
                                 if (timer) {
                                     clearTimeout(timer)
                                     timer = null
@@ -165,7 +165,7 @@ export class Router {
                                 this.debug(e)
                             }
                         resolve(hasCompleted)
-                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         if (root.done)
                             try {
                                 root.done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -177,13 +177,13 @@ export class Router {
 
                 }
 
-                Promise.all([p0, p1]).then((result)=> {
+                Promise.all([p0, p1]).then((result) => {
                     hander(result)
-                }).catch((data)=> {
+                }).catch((data) => {
                     hander(null, 1)
                 });
 
-            }).catch((data)=>reject(data));
+            }).catch((data) => reject(data));
         })
 
 
@@ -314,13 +314,13 @@ export class Router {
     }
 
     private enableOnpopstate() {
-        window.onpopstate = ()=> {
+        window.onpopstate = () => {
             if (this.pauseOnpopstate == true)
                 return
             if (this.ignorePopCount > 0)
                 --this.ignorePopCount
             else {
-                this.pop(null, null, true).catch((err)=> {
+                this.pop(null, null, true).catch((err) => {
                     this.debug(err)
                 })
             }
@@ -461,20 +461,20 @@ export class Router {
 
             return nav.remove(start + 1, length - start - 1, CLEANUP_ANIMATE)
         }
-        return new Promise((resolve, reject)=> {
+        return new Promise((resolve, reject) => {
             resolve(0)
         })
     }
 
     private viewInterceptor() {
-        this.app.viewWillEnter.subscribe((ev)=> {
+        this.app.viewWillEnter.subscribe((ev) => {
             //console.log(123, ev)
             //console.log(ev)
 
             //if (this.getPageConfig(ev.name))
             if (this.canPush(ev.instance).status == false || this.checkIfBanned(ev.instance) == true) {
                 //alert(ev.instance.constructor.name)
-                this.app.getRootNav().remove(undefined, undefined, CLEANUP_ANIMATE).then(()=> {
+                this.app.getRootNav().remove(undefined, undefined, CLEANUP_ANIMATE).then(() => {
                     this.push(ev.instance.constructor, ev.data)
                 });
                 // setTimeout(()=> {
@@ -492,15 +492,15 @@ export class Router {
 
             if (this.tokenListener)
                 this.tokenListener.unsubscribe();
-            this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, ()=> {
+            this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, () => {
                 this.next()
-            }, ()=> {
+            }, () => {
             }, false)
             //alert()
         } else if (pageConfig && pageConfig.reverse != true && pageConfig.tokens) {
             if (this.tokenListener)
                 this.tokenListener.unsubscribe();
-            this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, ()=> {
+            this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, () => {
                 if (pageConfig.popOnTokenInvalid == true) {
                     if (this.app.getRootNav().canGoBack() == true)
                         this.pop()
@@ -515,7 +515,7 @@ export class Router {
                 }
                 else
                     this.push(pageConfig.page, pageConfig.params, pageConfig.options, pageConfig.done)
-            }, ()=> {
+            }, () => {
             }, true)
         } else if (this.tokenListener) {
             this.tokenListener.unsubscribe();
@@ -628,7 +628,7 @@ export class Router {
 
 
         if (this.checkIfBanned(name) == true)
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 reject(PAGE_FORBIDDEN)
             })
 
@@ -662,7 +662,7 @@ export class Router {
 
             if (!toClass) {
                 this.debug('路由未指定');
-                return new Promise((resolve, reject)=> {
+                return new Promise((resolve, reject) => {
                     reject(ROUTER_CONFIG_NOTFOUND_0)
                 })
             }
@@ -680,7 +680,7 @@ export class Router {
                         done: null,
                     }
 
-                    return this.app.getRootNav().push(toClass, params, options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    return this.app.getRootNav().push(toClass, params, options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         let removeCount = this.cleanupPopStack()
                         this.pushState()
                         removeCount = 0
@@ -698,7 +698,7 @@ export class Router {
                             } catch (e) {
                                 this.debug(e)
                             }
-                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         if (done)
                             try {
                                 done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -708,7 +708,7 @@ export class Router {
                     });
                 } else {
                     this.debug('路由 ' + name + ' 未配置');
-                    return new Promise((resolve, reject)=> {
+                    return new Promise((resolve, reject) => {
                         reject(ROUTER_CONFIG_NOTFOUND_1)
                     })
                 }
@@ -733,7 +733,7 @@ export class Router {
                 if (isReversed == false) {
                     if (!toPage.redirect || !toPage.redirect.name) {
                         this.debug(name + ' 不满足token时的跳转页面未配置');
-                        return new Promise((resolve, reject)=> {
+                        return new Promise((resolve, reject) => {
                             reject(REDIRECT_CONFIG_NOTFOUND_0)
                         })
                     }
@@ -742,7 +742,7 @@ export class Router {
 
                     if (!redirectPage) {
                         this.debug(name + ' 不满足token时的跳转页面未配置2');
-                        return new Promise((resolve, reject)=> {
+                        return new Promise((resolve, reject) => {
                             reject(REDIRECT_CONFIG_NOTFOUND_1)
                         })
                     }
@@ -754,7 +754,7 @@ export class Router {
                         page: toPage.page,
                         params: !params ? toPage.params : this.utils.mergeObject(params, toPage.params),
                         options: !orgOptions ? this.utils.mergeObject(this.utils.deepCopy(toPage.options), PUSH_ANIMATE) : this.utils.mergeObject(orgOptions, toPage.options, PUSH_ANIMATE),
-                        done: !done ? toPage.done : (data)=> {
+                        done: !done ? toPage.done : (data) => {
                             if (toPage.done)
                                 try {
                                     toPage.done(data)
@@ -766,7 +766,7 @@ export class Router {
                         },
                     };
 
-                    let _done = !toPage.redirect.done ? redirectPage.done : (hasCompleted, isAsync, enteringName, leavingName, direction)=> {
+                    let _done = !toPage.redirect.done ? redirectPage.done : (hasCompleted, isAsync, enteringName, leavingName, direction) => {
                         if (redirectPage.done)
                             try {
                                 redirectPage.done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -780,7 +780,7 @@ export class Router {
                     return this.app.getRootNav().push(redirectPage.page,
                         !toPage.redirect.params ? redirectPage.params : this.utils.mergeObject(toPage.redirect.params, redirectPage.params),
                         !toPage.redirect.options ? this.utils.mergeObject(this.utils.deepCopy(redirectPage ? redirectPage.options : {}), PUSH_ANIMATE) : this.utils.mergeObject(this.utils.deepCopy(toPage.redirect.options), this.utils.mergeObject(this.utils.deepCopy(redirectPage ? redirectPage.options : {}), PUSH_ANIMATE), PUSH_ANIMATE)
-                    ).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    ).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         let removeCount = this.cleanupPopStack()
                         this.pushState()
                         removeCount = 0
@@ -798,7 +798,7 @@ export class Router {
                             } catch (e) {
                                 this.debug(e)
                             }
-                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         if (_done)
                             try {
                                 _done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -844,7 +844,7 @@ export class Router {
                 //alert(JSON.stringify(this.config[name] ? this.utils.mergeObject(options, this.config[name].options, PUSH_ANIMATE) : this.utils.mergeObject(options, PUSH_ANIMATE)))
                 return this.app.getRootNav().push(toClass,
                     toPage ? this.utils.mergeObject(params, toPage.params) : params,
-                    toPage ? this.utils.mergeObject(options, toPage.options, PUSH_ANIMATE) : this.utils.mergeObject(options, PUSH_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    toPage ? this.utils.mergeObject(options, toPage.options, PUSH_ANIMATE) : this.utils.mergeObject(options, PUSH_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     let removeCount = this.cleanupPopStack()
                     this.pushState()
                     removeCount = 0
@@ -868,7 +868,7 @@ export class Router {
                         } catch (e) {
                             this.debug(e)
                         }
-                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (toPage && toPage.done)
                         try {
                             toPage.done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -885,14 +885,14 @@ export class Router {
 
             }
         } else {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 reject(EVENT_PREVENTED)
             })
         }
     }
 
     private returnErrorCode(code) {
-        return new Promise((resolve, reject)=> {
+        return new Promise((resolve, reject) => {
             reject(code)
         })
     }
@@ -929,7 +929,7 @@ export class Router {
         //alert(JSON.stringify(this.utils.mergeObject(options, POP_ANIMATE)))
     }
 
-    public canGoBack=()=> {
+    public canGoBack = () => {
         return this.getGoBackPage().name != null
     }
 
@@ -976,7 +976,7 @@ export class Router {
                 }
                 else
                     popPage = this.getRootPageConfig()
-                return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     this.tokenHook()
                     this.cleanupPopStack(null, true)
                     this.pushState(true)
@@ -987,7 +987,7 @@ export class Router {
                             this.debug(e)
                         }
                     //window.history.pushCurrentState()
-                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
                             done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1001,7 +1001,7 @@ export class Router {
                     this.nextPage = null;
                 }
 
-                return this.app.getRootNav().pop(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                return this.app.getRootNav().pop(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     this.tokenHook()
                     if (doNotGoHistory == false) {
                         this.disableOnpopstate()
@@ -1019,7 +1019,7 @@ export class Router {
                             this.debug(e)
                         }
                     //window.history.pushCurrentState()
-                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
                             done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1033,25 +1033,31 @@ export class Router {
                 if (!this.exitCallback || this.exitCallback(event) == true) {
                     //window.history.go(-history.length-1)
 
-                    this.platform.exitApp()
-                    //alert()
-                    //window.location.href='about:blank'
-                    //window.open('', '_self').close();
-                    //this.pauseOnpopstate = true
-                    this.pushState(true)
-                    //alert(history.length)
-                    // for (let c = 0; c <= history.length + 1; ++c) {
-                    //   //this.disableOnpopstate()
-                    //   history.go(-1)
-                    //   //console.log(1)
-                    // }
+                    if (Event.emit('appWillExit', event).defaultPrevented == false) {
 
-                    return new Promise((resolve, reject)=> {
-                        //this.pauseOnpopstate = false
-                        reject(APP_EXIT)
-                    })
+                        this.platform.exitApp()
+                        //alert()
+                        //window.location.href='about:blank'
+                        //window.open('', '_self').close();
+                        //this.pauseOnpopstate = true
+                        this.pushState(true)
+                        //alert(history.length)
+                        // for (let c = 0; c <= history.length + 1; ++c) {
+                        //   //this.disableOnpopstate()
+                        //   history.go(-1)
+                        //   //console.log(1)
+                        // }
+
+                        return new Promise((resolve, reject) => {
+                            //this.pauseOnpopstate = false
+                            reject(APP_EXIT)
+                        })
+                    } else
+                        return new Promise((resolve, reject) => {
+                            reject(EXIT_APP_PREVENTED)
+                        })
                 } else {
-                    return new Promise((resolve, reject)=> {
+                    return new Promise((resolve, reject) => {
                         reject(EXIT_APP_PREVENTED)
                     })
                 }
@@ -1061,7 +1067,7 @@ export class Router {
 
         }
         else {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 reject(EVENT_PREVENTED)
             })
         }
@@ -1072,7 +1078,7 @@ export class Router {
         if (this.app.getRootNav().isTransitioning(true) == false)
             return this.pop(options, done, doNotGoHistory)
         else {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 reject(OTHER_TRANSITION)
             })
         }
@@ -1123,7 +1129,7 @@ export class Router {
                     this.nextPage = null;
                 }
 
-                return this.app.getRootNav().popToRoot(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                return this.app.getRootNav().popToRoot(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     this.tokenHook()
                     if ((this.app.getRootNav().length() - 1) > 0) {
                         this.disableOnpopstate()
@@ -1138,7 +1144,7 @@ export class Router {
                             this.debug(e)
                         }
                     //window.history.pushCurrentState()
-                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
                             done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1150,7 +1156,7 @@ export class Router {
             } else {
                 for (let c in this.config) {
                     if (this.config[c].root == true) {
-                        return this.app.getRootNav().push(this.config[c].page, this.config[c].params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                        return this.app.getRootNav().push(this.config[c].page, this.config[c].params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                             this.tokenHook()
                             this.cleanupPopStack(null, true)
                             this.pushState(true)
@@ -1161,7 +1167,7 @@ export class Router {
                                     this.debug(e)
                                 }
                             //window.history.pushCurrentState()
-                        }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                        }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                             if (done)
                                 try {
                                     done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1172,7 +1178,7 @@ export class Router {
                     }
                 }
 
-                return new Promise((resolve, reject)=> {
+                return new Promise((resolve, reject) => {
                     reject(EVENT_PREVENTED)
                 })
 
@@ -1181,7 +1187,7 @@ export class Router {
 
         }
         else {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 reject(EVENT_PREVENTED)
             })
         }
@@ -1216,7 +1222,7 @@ export class Router {
                     this.nextPage = null;
                 }
 
-                return this.app.getRootNav().popToRoot(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                return this.app.getRootNav().popToRoot(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     this.tokenHook()
                     if ((this.app.getRootNav().length() - 1) > 0) {
                         this.disableOnpopstate()
@@ -1231,7 +1237,7 @@ export class Router {
                             this.debug(e)
                         }
                     //window.history.pushCurrentState()
-                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
                             done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1245,7 +1251,7 @@ export class Router {
 
         }
         else {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 reject(EVENT_PREVENTED)
             })
         }
@@ -1289,7 +1295,7 @@ export class Router {
 
             let removeCount = this.app.getRootNav().length() - 1 - c
 
-            return this.app.getRootNav().popTo(view, this.utils.mergeObject(options, POP_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+            return this.app.getRootNav().popTo(view, this.utils.mergeObject(options, POP_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                 this.tokenHook()
                 if (removeCount > 0) {
                     this.disableOnpopstate()
@@ -1303,7 +1309,7 @@ export class Router {
                     } catch (e) {
                         this.debug(e)
                     }
-            }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+            }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                 if (done)
                     try {
                         done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1313,7 +1319,7 @@ export class Router {
             });
         }
         else {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 reject(EVENT_PREVENTED)
             })
         }
@@ -1350,7 +1356,7 @@ export class Router {
             if (currentPage && currentPage.next) {
                 let nextConfig = this.getPageConfig(currentPage.next.name)
                 let _done = !currentPage.next.done ? (nextConfig ? nextConfig.done : null) :
-                    (data)=> {
+                    (data) => {
                         if ((nextConfig ? nextConfig.done : null))
                             try {
                                 (nextConfig ? nextConfig.done : null)(data)
@@ -1367,7 +1373,7 @@ export class Router {
                     page: this.getPage(currentPage.next.name),
                     params: !currentPage.next.params ? (nextConfig ? nextConfig.params : null) : this.utils.mergeObject(currentPage.next.params, (nextConfig ? nextConfig.params : null)),
                     options: !currentPage.next.options ? (nextConfig ? this.utils.mergeObject(this.utils.deepCopy(nextConfig.options), PUSH_ANIMATE) : PUSH_ANIMATE) : this.utils.mergeObject(currentPage.next.options, (nextConfig ? this.utils.mergeObject(this.utils.deepCopy(nextConfig.options), PUSH_ANIMATE) : PUSH_ANIMATE), PUSH_ANIMATE),
-                    done: (data)=> {
+                    done: (data) => {
                         if (_done)
                             try {
                                 _done(data)
@@ -1387,7 +1393,7 @@ export class Router {
                             page: this.config[c].page,
                             params: this.config[c].params,
                             options: this.utils.mergeObject(this.utils.deepCopy(this.config[c].options), PUSH_ANIMATE),
-                            done: (data)=> {
+                            done: (data) => {
                                 if (this.config[c].done)
                                     try {
                                         this.config[c].done(data)
@@ -1405,7 +1411,7 @@ export class Router {
     public next(config = null): Promise < any > {
         if (config) {
             if (!this.setNextPage(config))
-                return new Promise((resolve, reject)=> {
+                return new Promise((resolve, reject) => {
                     reject(PAGE_FORBIDDEN)
                 })
         }
@@ -1439,7 +1445,7 @@ export class Router {
                     instance: this.next.bind(this),
                     canPush: this.canPush(_getNext.name)
                 }).defaultPrevented != false)
-                return new Promise((resolve, reject)=> {
+                return new Promise((resolve, reject) => {
                     reject(EVENT_PREVENTED)
                 })
         }
@@ -1452,7 +1458,7 @@ export class Router {
             //alert(JSON.stringify(this.nextPage))
             //alert(_nextPage.page)
             if (_nextPage.page)
-                return this.app.getRootNav().push(_nextPage.page, _nextPage.params, _nextPage.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                return this.app.getRootNav().push(_nextPage.page, _nextPage.params, _nextPage.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     let removeCount = this.cleanupPopStack(_nextPage.srcPage)
                     //alert(_nextPage.srcName)
                     this.pushState()
@@ -1472,7 +1478,7 @@ export class Router {
                         } catch (e) {
                             this.debug(e)
                         }
-                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (_nextPage.done)
                         try {
                             _nextPage.done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1482,7 +1488,7 @@ export class Router {
                 })
             else {
                 //alert(_nextPage.srcName)
-                return this.popStack(_nextPage.srcPage).then(()=> {
+                return this.popStack(_nextPage.srcPage).then(() => {
                     this.pushState(true)
                     this.tokenHook()
                 })
@@ -1492,7 +1498,7 @@ export class Router {
             if (currentPage && currentPage.next) {
                 let nextConfig = this.getPageConfig(currentPage.next.name)
                 let _done = !currentPage.next.done ? (nextConfig ? nextConfig.done : null) :
-                    (hasCompleted, isAsync, enteringName, leavingName, direction)=> {
+                    (hasCompleted, isAsync, enteringName, leavingName, direction) => {
                         if ((nextConfig ? nextConfig.done : null))
                             try {
                                 (nextConfig ? nextConfig.done : null)(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1506,7 +1512,7 @@ export class Router {
                     this.getPage(currentPage.next.name),
                     !nextConfig.next.params ? (nextConfig ? nextConfig.params : null) : this.utils.mergeObject(currentPage.next.params, (nextConfig ? nextConfig.params : null)),
                     !nextConfig.next.options ? (nextConfig ? this.utils.mergeObject(this.utils.deepCopy(nextConfig.options), PUSH_ANIMATE) : PUSH_ANIMATE) : this.utils.mergeObject(currentPage.next.options, (nextConfig ? this.utils.mergeObject(this.utils.deepCopy(nextConfig.options), PUSH_ANIMATE) : PUSH_ANIMATE), PUSH_ANIMATE))
-                    .then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    .then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         let removeCount = this.cleanupPopStack()
                         this.pushState()
                         removeCount = 0
@@ -1524,7 +1530,7 @@ export class Router {
                             } catch (e) {
                                 this.debug(e)
                             }
-                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         if (_done)
                             try {
                                 _done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1536,7 +1542,7 @@ export class Router {
             else {
                 for (let c in this.config) {
                     if (this.config[c].root == true) {
-                        return this.app.getRootNav().push(this.config[c].page, this.config[c].params, this.utils.mergeObject(this.utils.deepCopy(this.config[c].options), PUSH_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                        return this.app.getRootNav().push(this.config[c].page, this.config[c].params, this.utils.mergeObject(this.utils.deepCopy(this.config[c].options), PUSH_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                             this.cleanupPopStack(undefined, true)
                             let removeCount = this.cleanupPopStack()
                             this.pushState()
@@ -1555,7 +1561,7 @@ export class Router {
                                 } catch (e) {
                                     this.debug(e)
                                 }
-                        }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?)=> {
+                        }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                             if (this.config[c].done)
                                 try {
                                     this.config[c].done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1568,7 +1574,7 @@ export class Router {
             }
         }
 
-        return new Promise((resolve, reject)=> {
+        return new Promise((resolve, reject) => {
             reject(NO_NEXT_PAGE)
         })
 

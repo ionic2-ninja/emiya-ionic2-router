@@ -216,10 +216,13 @@ import {Event} from 'emiya-angular2-event';
 export class MyApp {
 
 constructor(router: Router) {
-    //push event listen
-    let pushListenr=EventSync.subscribe('push',(ev,data)=>{})
-    //pop event listen
-    EventSync.subscribe('pop',(ev,data)=>{})
+    //push event
+    let pushListenr=Event.subscribe('push',(ev,data)=>{})
+    //pop event
+    Event.subscribe('pop',(ev,data)=>{})
+    
+    //app exit event
+    Event.subscribe('appWillExit',(ev,data)=>{})
     
     //unlisten to event
     pushListenr.unsubscribe()

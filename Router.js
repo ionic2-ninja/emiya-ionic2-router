@@ -901,22 +901,28 @@ var Router = (function () {
             else {
                 if (!this.exitCallback || this.exitCallback(event) == true) {
                     //window.history.go(-history.length-1)
-                    this.platform.exitApp();
-                    //alert()
-                    //window.location.href='about:blank'
-                    //window.open('', '_self').close();
-                    //this.pauseOnpopstate = true
-                    this.pushState(true);
-                    //alert(history.length)
-                    // for (let c = 0; c <= history.length + 1; ++c) {
-                    //   //this.disableOnpopstate()
-                    //   history.go(-1)
-                    //   //console.log(1)
-                    // }
-                    return new Promise(function (resolve, reject) {
-                        //this.pauseOnpopstate = false
-                        reject(StatusCode_1.APP_EXIT);
-                    });
+                    if (emiya_angular2_event_1.Event.emit('appWillExit', event).defaultPrevented == false) {
+                        this.platform.exitApp();
+                        //alert()
+                        //window.location.href='about:blank'
+                        //window.open('', '_self').close();
+                        //this.pauseOnpopstate = true
+                        this.pushState(true);
+                        //alert(history.length)
+                        // for (let c = 0; c <= history.length + 1; ++c) {
+                        //   //this.disableOnpopstate()
+                        //   history.go(-1)
+                        //   //console.log(1)
+                        // }
+                        return new Promise(function (resolve, reject) {
+                            //this.pauseOnpopstate = false
+                            reject(StatusCode_1.APP_EXIT);
+                        });
+                    }
+                    else
+                        return new Promise(function (resolve, reject) {
+                            reject(StatusCode_1.EXIT_APP_PREVENTED);
+                        });
                 }
                 else {
                     return new Promise(function (resolve, reject) {
