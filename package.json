@@ -71,7 +71,10 @@
     "controller",
     "emitter",
     "subscribe",
-    "redirect"
+    "redirect",
+    "h5",
+    "browser",
+    "phonegap"
   ],
   "author": "EmiyaLee",
   "license": "MIT",
