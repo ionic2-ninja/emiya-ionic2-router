@@ -282,7 +282,7 @@ var Router = (function () {
             else
                 this.banRouter.push(this.utils.deepCopy(config[c]));
         }
-        console.log(this.config);
+        //console.log(this.config)
         //this.config = config;
         this.loadRootPage();
     };
