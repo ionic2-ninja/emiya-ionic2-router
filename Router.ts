@@ -105,9 +105,6 @@ export class Router {
     private loadRootPage() {
         return new Promise((resolve, reject) => {
 
-
-            //console.log(root)
-            //console.log(this.platform.version())
             this.platform.ready().then(() => {
                 let defaultP = new Promise((resolve, reject) => {
                     resolve(' ')
@@ -132,8 +129,7 @@ export class Router {
                         return
                     }
                     this.app.getRootNav().setRoot(root.page, root.params, root.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                        //if (root.doNotReplaceState != true)
-                        //console.log(this.app.getRootNav().last())
+
                         this.pushState(root.doNotReplaceState != true)
                         if (this.utils.notNull(root.duration)) {
                             let timer, monitor
@@ -146,7 +142,7 @@ export class Router {
                                 this.next()
                             }, root.duration)
 
-                            //alert()
+
 
                             monitor = this.app.viewWillEnter.subscribe((ev) => {
                                 if (timer) {
@@ -187,25 +183,18 @@ export class Router {
         })
 
 
-        // setTimeout(()=>{
-        //   this.app.getRootNav().push(root.page, root.params, root.options, root.done)
-        // },4000)
     }
 
     public getRootPage() {
-        //alert(this.utils.getUrlParam('?0=123&1=http://218.17.240.226:4012/group1/M00/00/14/rBEADVfRFAyAYzwyAAAMPb9q4kk633.jpg'))
+
         let params = this.utils.getUrlParam(window.location.href.indexOf('#') >= 0 ? window.location.hash : window.location.search), path = this.utils.getUrlPath(window.location.hash), target
 
-        //alert(JSON.stringify(params))
 
         for (let c in this.config) {
-            if (this.utils.matchUrlPath(this.utils.notNull(this.config[c].url) ? this.config[c].url : ('/' + c), path) == true) {
+            if (this.utils.matchUrlPath(this.utils.notNull(this.config[c].url) ? this.config[c].url : ('/' + this.config[c].id), path) == true) {
                 target = this.utils.deepCopy(this.config[c])
                 target.params = this.utils.mergeObject(params, target.params)
                 target.doNotReplaceState = true
-                //target.name = this.config[c].id
-                //target.name=c
-                //alert(JSON.stringify(target.params))
                 break
             }
         }
@@ -213,14 +202,11 @@ export class Router {
 
         if (!target) {
             for (let c in this.config) {
-                let _tmp = this.utils.matchUrlSchema(this.utils.notNull(this.config[c].url) ? this.config[c].url : ('/' + c), path)
+                let _tmp = this.utils.matchUrlSchema(this.utils.notNull(this.config[c].url) ? this.config[c].url : ('/' + this.config[c].id), path)
                 if (_tmp['result'] == true) {
                     target = this.utils.deepCopy(this.config[c])
                     target.params = this.utils.mergeObject(_tmp['restful'], params, target.params)
                     target.doNotReplaceState = true
-                    //target.name = this.config[c].id
-                    //target.name=c
-                    //alert(JSON.stringify(target.params))
                     break
                 }
             }
@@ -247,9 +233,7 @@ export class Router {
 
                 if (this.utils.notBlankStr(target.guide.duration) && target.guide.duration >= 0) {
                     target.duration = target.guide.duration
-                    // setTimeout(()=> {
-                    //   this.next()
-                    // }, this.config[c].guide.duration)
+
                 }
             }
             return target
@@ -258,7 +242,7 @@ export class Router {
 
         for (let c in this.config) {
             if (this.config[c].guide) {
-                //alert(JSON.stringify(this.config[c]))
+
                 if (window.localStorage.getItem(this.packageName) != this.packageVersion || this.config[c].guide.always == true) {
 
                     window.localStorage.setItem(this.packageName, this.packageVersion)
@@ -281,18 +265,8 @@ export class Router {
 
                     if (this.utils.notBlankStr(this.config[c].guide.duration) && this.config[c].guide.duration >= 0) {
                         _tmp.duration = this.config[c].guide.duration
-                        // setTimeout(()=> {
-                        //   this.next()
-                        // }, this.config[c].guide.duration)
+
                     }
-
-                    //let _page = this.utils.deepCopy(this.config[c]);
-                    //_page.name=c
-
-                    // if (target && target.name == _page.name) {
-                    //   _page.params = this.utils.mergeObject(params, _page.params)
-                    //   alert(JSON.stringify(_page.params))
-                    // }
 
                     return _tmp
                 }
@@ -306,7 +280,6 @@ export class Router {
                 let _page = this.utils.deepCopy(this.config[c]);
                 _page.params = this.utils.mergeObject(params, _page.params)
                 _page.doNotReplaceState = (target != null)
-                //alert(JSON.stringify(target))
                 return _page
             }
         }
@@ -357,8 +330,7 @@ export class Router {
             else
                 this.banRouter.push(this.utils.deepCopy(config[c]))
         }
-        //console.log(this.config)
-        //this.config = config;
+
         this.loadRootPage()
     }
 
@@ -417,9 +389,9 @@ export class Router {
                     break
                 }
             }
-            //console.log(start)
+
             if (start >= 0) {
-                //alert(0)
+
                 nav.remove(start, length - start - 1, CLEANUP_ANIMATE)
                 return length - start - 1
             }
@@ -432,15 +404,14 @@ export class Router {
                     }
                 }
                 if (start >= 0) {
-                    //alert(start+"/"+(length - start - 2))
+
 
                     nav.remove(start + 1, length - start - 2, CLEANUP_ANIMATE)
                     return length - start - 2
                 }
             }
         } else {
-            //alert(srcName)
-            //alert(2)
+
             this.app.getRootNav().remove(0, this.app.getRootNav().length() - 1, CLEANUP_ANIMATE)
             return this.app.getRootNav().length() - 1
         }
@@ -457,7 +428,6 @@ export class Router {
             }
         }
         if (start >= 0) {
-            //alert(start+"/"+(length - start - 2))
 
             return nav.remove(start + 1, length - start - 1, CLEANUP_ANIMATE)
         }
@@ -468,18 +438,15 @@ export class Router {
 
     private viewInterceptor() {
         this.app.viewWillEnter.subscribe((ev) => {
-            //console.log(123, ev)
-            //console.log(ev)
 
-            //if (this.getPageConfig(ev.name))
+
+
             if (this.canPush(ev.instance).status == false || this.checkIfBanned(ev.instance) == true) {
-                //alert(ev.instance.constructor.name)
+
                 this.app.getRootNav().remove(undefined, undefined, CLEANUP_ANIMATE).then(() => {
                     this.push(ev.instance.constructor, ev.data)
                 });
-                // setTimeout(()=> {
-                //   this.push(ev.instance.constructor, ev.data)
-                // })
+
             }
         })
     }
@@ -496,7 +463,7 @@ export class Router {
                 this.next()
             }, () => {
             }, false)
-            //alert()
+
         } else if (pageConfig && pageConfig.reverse != true && pageConfig.tokens) {
             if (this.tokenListener)
                 this.tokenListener.unsubscribe();
@@ -524,9 +491,9 @@ export class Router {
     }
 
     private pushState(replace = false, delay?) {
-        //setTimeout(()=> {
+
         this.pushStateImmediate(replace)
-        //}, 500)
+
     }
 
     private pushStateImmediate(replace = false) {
@@ -537,16 +504,16 @@ export class Router {
             url = url.url
         else
             url = '/' + pageConfig.id
-        //alert(url)
+
         if (this.utils.notNull(url) && url.substr(0, 1) != '/')
             url += '/'
         else if (!this.utils.notNull(url))
             url = '/' + this.app.getRootNav().last()['name']
-        //alert(url)
-        //url = window.location.origin + window.location.pathname + window.location.search + '#' + url + this.utils.genUrlParams(this.app.getRootNav().last()['data'])
+
+
         let _params = this.utils.deepCopy(this.app.getRootNav().last()['data'])
         url = window.location.origin + window.location.pathname + '#' + this.utils.fillRestfulUrl(url, _params) + this.utils.genUrlParams(_params)
-        //alert(url)
+
         if (replace == false)
             window.history.pushState({
                 name: pageConfig ? pageConfig.id : this.app.getRootNav().last()['name'],
@@ -559,8 +526,7 @@ export class Router {
                 params: this.app.getRootNav().last()['data'],
                 url: url
             }, (pageConfig && this.utils.notNull(pageConfig.title)) ? pageConfig.title : pageConfig.id, url)
-        //alert(url)
-        //alert(window.location.pathname == '/' ? '' : window.location.pathname)
+
     }
 
     public canPush(name) {
@@ -601,7 +567,6 @@ export class Router {
         if (typeof name == 'string' && name.indexOf('/') >= 0) {
             let _params = this.utils.getUrlParam(name), path = this.utils.getUrlPath('#' + name), found = false
 
-            //alert(JSON.stringify(params))
 
             for (let c in this.config) {
                 if (this.utils.matchUrlPath(this.utils.notNull(this.config[c].url) ? this.config[c].url : ('/' + this.config[c].id), path) == true) {
@@ -687,9 +652,7 @@ export class Router {
                         if (removeCount > 0) {
                             this.disableOnpopstate()
                             window.history.go(-removeCount)
-                            // setTimeout(()=> {
-                            //   this.enableOnpopstate()
-                            // })
+
                         }
                         this.tokenHook()
                         if (done)
@@ -714,7 +677,7 @@ export class Router {
                 }
             }
 
-            //this.debug(name);
+
             let needRedirect = false, isReversed = false, isTokenReverse = false;
             // 如果有前置需求的token
             if (toPage.tokens && toPage.tokens.length > 0) {
@@ -732,7 +695,7 @@ export class Router {
 
                 if (isReversed == false) {
                     if (!toPage.redirect || !toPage.redirect.name) {
-                        this.debug(name + ' 不满足token时的跳转页面未配置');
+                        //this.debug(name + ' 不满足token时的跳转页面未配置');
                         return new Promise((resolve, reject) => {
                             reject(REDIRECT_CONFIG_NOTFOUND_0)
                         })
@@ -741,7 +704,7 @@ export class Router {
                     let redirectPage = this.getPageConfig(toPage.redirect.name)
 
                     if (!redirectPage) {
-                        this.debug(name + ' 不满足token时的跳转页面未配置2');
+                        //this.debug(name + ' 不满足token时的跳转页面未配置2');
                         return new Promise((resolve, reject) => {
                             reject(REDIRECT_CONFIG_NOTFOUND_1)
                         })
@@ -776,7 +739,7 @@ export class Router {
                         if (toPage.redirect.done)
                             toPage.redirect.done(hasCompleted, isAsync, enteringName, leavingName, direction)
                     }
-                    //alert(JSON.stringify(this.utils.deepCopy(this.config[this.config[name].redirect.name] ? this.config[this.config[name].redirect.name].options : {})))
+
                     return this.app.getRootNav().push(redirectPage.page,
                         !toPage.redirect.params ? redirectPage.params : this.utils.mergeObject(toPage.redirect.params, redirectPage.params),
                         !toPage.redirect.options ? this.utils.mergeObject(this.utils.deepCopy(redirectPage ? redirectPage.options : {}), PUSH_ANIMATE) : this.utils.mergeObject(this.utils.deepCopy(toPage.redirect.options), this.utils.mergeObject(this.utils.deepCopy(redirectPage ? redirectPage.options : {}), PUSH_ANIMATE), PUSH_ANIMATE)
@@ -787,9 +750,7 @@ export class Router {
                         if (removeCount > 0) {
                             this.disableOnpopstate()
                             window.history.go(-removeCount)
-                            // setTimeout(()=> {
-                            //   this.enableOnpopstate()
-                            // })
+
                         }
                         this.tokenHook()
                         if (_done)
@@ -810,22 +771,12 @@ export class Router {
                 } else {
                     this.debug(name + ' 不满足进入该页面所需条件');
                     return this.next()
-                    // return new Promise((resolve, reject)=> {
-                    //   reject(-290)
-                    // })
+
                 }
 
             } else {
 
-                // if (isReversed == false)
-                //   this.nextPage = {
-                //     srcName: null,
-                //     name: null,
-                //     page: null,
-                //     params: null,
-                //     options: null,
-                //     done: null,
-                //   };
+
 
                 if (isTokenReverse == true && !this.nextPage) {
                     this.nextPage = {
@@ -837,11 +788,9 @@ export class Router {
                         options: undefined,
                         done: undefined,
                     };
-                    //alert(JSON.stringify(this.nextPage))
+
                 }
-                //console.log(this.getPage(name))
-                //alert(123)
-                //alert(JSON.stringify(this.config[name] ? this.utils.mergeObject(options, this.config[name].options, PUSH_ANIMATE) : this.utils.mergeObject(options, PUSH_ANIMATE)))
+
                 return this.app.getRootNav().push(toClass,
                     toPage ? this.utils.mergeObject(params, toPage.params) : params,
                     toPage ? this.utils.mergeObject(options, toPage.options, PUSH_ANIMATE) : this.utils.mergeObject(options, PUSH_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
@@ -851,9 +800,7 @@ export class Router {
                     if (removeCount > 0) {
                         this.disableOnpopstate()
                         window.history.go(-removeCount)
-                        // setTimeout(()=> {
-                        //   this.enableOnpopstate()
-                        // })
+
                     }
                     this.tokenHook()
                     if (toPage && toPage.done)
@@ -926,7 +873,7 @@ export class Router {
         else {
             return {name: null, params: null, component: null}
         }
-        //alert(JSON.stringify(this.utils.mergeObject(options, POP_ANIMATE)))
+
     }
 
     public canGoBack = () => {
@@ -968,7 +915,7 @@ export class Router {
 
 
             if ((this.app.getRootNav().canGoBack() == false && (!currentPage || currentPage.root != true)) || (currentPage && currentPage.pop && currentPage.pop.name && currentPage.pop.force == true)) {
-                //alert()
+
                 let popPage;
                 if (currentPage && currentPage.pop && currentPage.pop.name) {
                     popPage = currentPage.pop
@@ -986,7 +933,7 @@ export class Router {
                         } catch (e) {
                             this.debug(e)
                         }
-                    //window.history.pushCurrentState()
+
                 }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
@@ -1005,11 +952,9 @@ export class Router {
                     this.tokenHook()
                     if (doNotGoHistory == false) {
                         this.disableOnpopstate()
-                        //window.history.go(-1)
+
                         this.pushState(true)
-                        // setTimeout(()=> {
-                        //   this.enableOnpopstate()
-                        // })
+
 
                     }
                     if (done)
@@ -1018,7 +963,7 @@ export class Router {
                         } catch (e) {
                             this.debug(e)
                         }
-                    //window.history.pushCurrentState()
+
                 }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
@@ -1031,25 +976,17 @@ export class Router {
             }
             else {
                 if (!this.exitCallback || this.exitCallback(event) == true) {
-                    //window.history.go(-history.length-1)
+
 
                     if (Event.emit('appWillExit', event).defaultPrevented == false) {
 
                         this.platform.exitApp()
-                        //alert()
-                        //window.location.href='about:blank'
-                        //window.open('', '_self').close();
-                        //this.pauseOnpopstate = true
+
                         this.pushState(true)
-                        //alert(history.length)
-                        // for (let c = 0; c <= history.length + 1; ++c) {
-                        //   //this.disableOnpopstate()
-                        //   history.go(-1)
-                        //   //console.log(1)
-                        // }
+
 
                         return new Promise((resolve, reject) => {
-                            //this.pauseOnpopstate = false
+
                             reject(APP_EXIT)
                         })
                     } else
@@ -1062,8 +999,6 @@ export class Router {
                     })
                 }
             }
-            //alert(JSON.stringify(this.utils.mergeObject(options, POP_ANIMATE)))
-
 
         }
         else {
@@ -1133,9 +1068,7 @@ export class Router {
                     this.tokenHook()
                     if ((this.app.getRootNav().length() - 1) > 0) {
                         this.disableOnpopstate()
-                        //window.history.go(-(this.app.getRootNav().length() - 1))
                         this.pushState(true)
-                        //this.enableOnpopstate()
                     }
                     if (done)
                         try {
@@ -1143,7 +1076,6 @@ export class Router {
                         } catch (e) {
                             this.debug(e)
                         }
-                    //window.history.pushCurrentState()
                 }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
@@ -1166,7 +1098,6 @@ export class Router {
                                 } catch (e) {
                                     this.debug(e)
                                 }
-                            //window.history.pushCurrentState()
                         }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                             if (done)
                                 try {
@@ -1226,9 +1157,7 @@ export class Router {
                     this.tokenHook()
                     if ((this.app.getRootNav().length() - 1) > 0) {
                         this.disableOnpopstate()
-                        //window.history.go(-(this.app.getRootNav().length() - 1))
                         this.pushState(true)
-                        //this.enableOnpopstate()
                     }
                     if (done)
                         try {
@@ -1236,7 +1165,6 @@ export class Router {
                         } catch (e) {
                             this.debug(e)
                         }
-                    //window.history.pushCurrentState()
                 }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     if (done)
                         try {
@@ -1299,9 +1227,7 @@ export class Router {
                 this.tokenHook()
                 if (removeCount > 0) {
                     this.disableOnpopstate()
-                    //window.history.go(-removeCount)
                     this.pushState(true)
-                    //this.enableOnpopstate()
                 }
                 if (done)
                     try {
@@ -1349,8 +1275,7 @@ export class Router {
 
     public getNextPage() {
         let currentPage = this.getPageConfig(this.app.getRootNav().last().instance)
-        //alert(this.app.getRootNav().last()['name'])
-        if (this.nextPage && (!currentPage || !currentPage.next || (currentPage.next.force != true))/*&& this.utils.notNull(this.nextPage.page)*/) {
+        if (this.nextPage && (!currentPage || !currentPage.next || (currentPage.next.force != true))) {
             return this.utils.deepCopy(this.nextPage)
         } else {
             if (currentPage && currentPage.next) {
@@ -1454,21 +1379,17 @@ export class Router {
         if (this.nextPage && (!currentPage || !currentPage.next || (currentPage.next.force != true))/*&& this.utils.notNull(this.nextPage.page)*/) {
             let _nextPage = this.nextPage;
             this.nextPage = null;
-            //alert(JSON.stringify(this.nextPage))
-            //alert(JSON.stringify(this.nextPage))
-            //alert(_nextPage.page)
+
             if (_nextPage.page)
                 return this.app.getRootNav().push(_nextPage.page, _nextPage.params, _nextPage.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                     let removeCount = this.cleanupPopStack(_nextPage.srcPage)
-                    //alert(_nextPage.srcName)
+
                     this.pushState()
                     removeCount = 0
                     if (removeCount > 0) {
                         this.disableOnpopstate()
                         window.history.go(-removeCount)
-                        // setTimeout(()=> {
-                        //   this.enableOnpopstate()
-                        // }, 0)
+
                     }
                     this.tokenHook()
 
@@ -1487,7 +1408,7 @@ export class Router {
                         }
                 })
             else {
-                //alert(_nextPage.srcName)
+
                 return this.popStack(_nextPage.srcPage).then(() => {
                     this.pushState(true)
                     this.tokenHook()
@@ -1519,9 +1440,7 @@ export class Router {
                         if (removeCount > 0) {
                             this.disableOnpopstate()
                             window.history.go(-removeCount)
-                            // setTimeout(()=> {
-                            //   this.enableOnpopstate()
-                            // })
+
                         }
                         this.tokenHook()
                         if (_done)
@@ -1550,9 +1469,7 @@ export class Router {
                             if (removeCount > 0) {
                                 this.disableOnpopstate()
                                 window.history.go(-removeCount)
-                                // setTimeout(()=> {
-                                //   this.enableOnpopstate()
-                                // })
+
                             }
                             this.tokenHook()
                             if (this.config[c].done)
