@@ -79,7 +79,7 @@ export class Router {
             this.platform.exitApp()
         }, this.backgroundTimeout)
     }
-    private resumeTimeout = 5000
+    private resumeTimeout = -1
     private lastPauseTimestamp
 
     constructor(private app: App, private platform: Platform) {

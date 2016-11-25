@@ -45,7 +45,7 @@ var Router = (function () {
                 _this.platform.exitApp();
             }, _this.backgroundTimeout);
         };
-        this.resumeTimeout = 5000;
+        this.resumeTimeout = -1;
         this.canGoBack = function () {
             return _this.getGoBackPage().name != null;
         };
