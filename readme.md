@@ -18,6 +18,7 @@ cordova plugin add cordova-plugin-app-version (optional but strongly recommanded
 * provide push/pop event,support event prevention
 * support pop behavior customization for each page
 * manage page access based on [Token](https://github.com/ionic2-ninja/emiya-angular2-token)
+* support app backgroud auto kill and auto restart
 
 ##[>>>demo here<<<](https://github.com/ionic2-ninja/ionic2-demo)
 
@@ -125,6 +126,16 @@ export const Routes = {
 
 }
 ```
+
+### load Router Globally
+```
+import {Router} from 'emiya-ionic2-router'
+
+@NgModule({
+ providers: [Router]
+})
+```
+
 
 ### load configuration
 
@@ -284,6 +295,11 @@ constructor(router: Router) {
 * true success
 
 
-### Api Referrences(todo..)
+### Api Referrences(to be continued..)
+```
+setBackgroundTimeout(number?) //unit is ms,app will kill itself after run in background for {{number}} ms,default value is -1(never kill itself)
+```
 
-
+```
+setResumeTimeout(number?) //unit is ms,app will reload and navigate to homepage when it stay in background for over {{number}} ms and resume to frontend,default value is -1(never reload)
+```

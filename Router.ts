@@ -70,6 +70,18 @@ export class Router {
     private packageVersion: any = ' ';
     private defaultBackButtonPrior = 101
 
+    private backgroundTimeout = -1
+    private backgroundKiller
+    private pauseListener0 = () => {
+        this.backgroundKiller && clearTimeout(this.backgroundKiller)
+        this.backgroundKiller = null
+        this.backgroundKiller = setTimeout(() => {
+            this.platform.exitApp()
+        }, this.backgroundTimeout)
+    }
+    private resumeTimeout = 5000
+    private lastPauseTimestamp
+
     constructor(private app: App, private platform: Platform) {
         this.enableOnpopstate()
 
@@ -82,6 +94,21 @@ export class Router {
         })
 
         this.viewInterceptor()
+
+        document.addEventListener('resume', () => {
+            clearTimeout && clearTimeout(this.backgroundKiller)
+            this.backgroundKiller = null
+            if (this.resumeTimeout > 0 && this.lastPauseTimestamp && new Date().getTime() - this.lastPauseTimestamp >= this.resumeTimeout) {
+                window.location.replace(window.location.href.indexOf('#') >= 0 ? window.location.href.substr(0, window.location.href.indexOf('#')) : window.location.href)
+            }
+        })
+
+        document.addEventListener('pause', () => {
+            this.lastPauseTimestamp = new Date().getTime()
+        })
+
+        this.setBackgroundTimeout(this.backgroundTimeout)
+
     }
 
     private registerBackButtonAction(backButtonPrior = this.defaultBackButtonPrior) {
@@ -141,7 +168,6 @@ export class Router {
                                 timer = null
                                 this.next()
                             }, root.duration)
-
 
 
                             monitor = this.app.viewWillEnter.subscribe((ev) => {
@@ -440,7 +466,6 @@ export class Router {
         this.app.viewWillEnter.subscribe((ev) => {
 
 
-
             if (this.canPush(ev.instance).status == false || this.checkIfBanned(ev.instance) == true) {
 
                 this.app.getRootNav().remove(undefined, undefined, CLEANUP_ANIMATE).then(() => {
@@ -500,7 +525,7 @@ export class Router {
         let pageConfig = this.getPageConfig(this.app.getRootNav().last().instance), url = pageConfig
 
 
-        if (url)
+        if (url && url.url)
             url = url.url
         else
             url = '/' + pageConfig.id
@@ -777,7 +802,6 @@ export class Router {
             } else {
 
 
-
                 if (isTokenReverse == true && !this.nextPage) {
                     this.nextPage = {
                         srcName: pageConfig.id,
@@ -987,7 +1011,7 @@ export class Router {
 
                         return new Promise((resolve, reject) => {
 
-                            reject(APP_EXIT)
+                            resolve(APP_EXIT)
                         })
                     } else
                         return new Promise((resolve, reject) => {
@@ -1495,6 +1519,21 @@ export class Router {
             reject(NO_NEXT_PAGE)
         })
 
+    }
+
+
+    public setBackgroundTimeout(timeout = -1) {
+        document.removeEventListener('pause', this.pauseListener0)
+        this.backgroundKiller && clearTimeout(this.backgroundKiller)
+        this.backgroundKiller = null
+        if (timeout > 0) {
+            this.backgroundTimeout = timeout
+            document.addEventListener('pause', this.pauseListener0)
+        }
+    }
+
+    public setResumeTimeout(timeout = -1) {
+        this.resumeTimeout = timeout
     }
 
     private debug(arg1) {

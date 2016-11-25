@@ -37,6 +37,15 @@ var Router = (function () {
         this.packageName = ' ';
         this.packageVersion = ' ';
         this.defaultBackButtonPrior = 101;
+        this.backgroundTimeout = -1;
+        this.pauseListener0 = function () {
+            _this.backgroundKiller && clearTimeout(_this.backgroundKiller);
+            _this.backgroundKiller = null;
+            _this.backgroundKiller = setTimeout(function () {
+                _this.platform.exitApp();
+            }, _this.backgroundTimeout);
+        };
+        this.resumeTimeout = 5000;
         this.canGoBack = function () {
             return _this.getGoBackPage().name != null;
         };
@@ -48,6 +57,17 @@ var Router = (function () {
             _this.rootOverrideMonitor = null;
         });
         this.viewInterceptor();
+        document.addEventListener('resume', function () {
+            clearTimeout && clearTimeout(_this.backgroundKiller);
+            _this.backgroundKiller = null;
+            if (_this.resumeTimeout > 0 && _this.lastPauseTimestamp && new Date().getTime() - _this.lastPauseTimestamp >= _this.resumeTimeout) {
+                window.location.replace(window.location.href.indexOf('#') >= 0 ? window.location.href.substr(0, window.location.href.indexOf('#')) : window.location.href);
+            }
+        });
+        document.addEventListener('pause', function () {
+            _this.lastPauseTimestamp = new Date().getTime();
+        });
+        this.setBackgroundTimeout(this.backgroundTimeout);
     }
     Router.prototype.registerBackButtonAction = function (backButtonPrior) {
         var _this = this;
@@ -404,7 +424,7 @@ var Router = (function () {
     Router.prototype.pushStateImmediate = function (replace) {
         if (replace === void 0) { replace = false; }
         var pageConfig = this.getPageConfig(this.app.getRootNav().last().instance), url = pageConfig;
-        if (url)
+        if (url && url.url)
             url = url.url;
         else
             url = '/' + pageConfig.id;
@@ -840,7 +860,7 @@ var Router = (function () {
                         this.platform.exitApp();
                         this.pushState(true);
                         return new Promise(function (resolve, reject) {
-                            reject(StatusCode_1.APP_EXIT);
+                            resolve(StatusCode_1.APP_EXIT);
                         });
                     }
                     else
@@ -1355,6 +1375,20 @@ var Router = (function () {
         return new Promise(function (resolve, reject) {
             reject(StatusCode_1.NO_NEXT_PAGE);
         });
+    };
+    Router.prototype.setBackgroundTimeout = function (timeout) {
+        if (timeout === void 0) { timeout = -1; }
+        document.removeEventListener('pause', this.pauseListener0);
+        this.backgroundKiller && clearTimeout(this.backgroundKiller);
+        this.backgroundKiller = null;
+        if (timeout > 0) {
+            this.backgroundTimeout = timeout;
+            document.addEventListener('pause', this.pauseListener0);
+        }
+    };
+    Router.prototype.setResumeTimeout = function (timeout) {
+        if (timeout === void 0) { timeout = -1; }
+        this.resumeTimeout = timeout;
     };
     Router.prototype.debug = function (arg1) {
         if (DEBUG) {
