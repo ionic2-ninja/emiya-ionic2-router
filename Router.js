@@ -46,6 +46,7 @@ var Router = (function () {
             }, _this.backgroundTimeout);
         };
         this.resumeTimeout = -1;
+        this.subNavUsePush = false;
         this.canGoBack = function () {
             return _this.getGoBackPage().name != null;
         };
@@ -110,34 +111,58 @@ var Router = (function () {
                         return;
                     }
                     _this.app.getRootNav().setRoot(root.page, root.params, root.options).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
-                        _this.pushState(root.doNotReplaceState != true);
-                        if (_this.utils.notNull(root.duration)) {
-                            var timer_1, monitor_1;
-                            timer_1 = setTimeout(function () {
-                                if (monitor_1) {
+                        if (_this.canPush(root.page)['status'] == true) {
+                            _this.pushState(root.doNotReplaceState != true);
+                            if (_this.utils.notNull(root.duration)) {
+                                var timer_1, monitor_1;
+                                timer_1 = setTimeout(function () {
+                                    if (monitor_1) {
+                                        monitor_1.unsubscribe();
+                                        monitor_1 = null;
+                                    }
+                                    timer_1 = null;
+                                    _this.next();
+                                }, root.duration);
+                                monitor_1 = _this.app.viewWillEnter.subscribe(function (ev) {
+                                    if (timer_1) {
+                                        clearTimeout(timer_1);
+                                        timer_1 = null;
+                                    }
                                     monitor_1.unsubscribe();
                                     monitor_1 = null;
+                                });
+                            }
+                            _this.tokenHook();
+                            if (root.done)
+                                try {
+                                    root.done(hasCompleted, isAsync, enteringName, leavingName, direction);
                                 }
-                                timer_1 = null;
-                                _this.next();
-                            }, root.duration);
-                            monitor_1 = _this.app.viewWillEnter.subscribe(function (ev) {
-                                if (timer_1) {
-                                    clearTimeout(timer_1);
-                                    timer_1 = null;
+                                catch (e) {
+                                    _this.debug(e);
                                 }
-                                monitor_1.unsubscribe();
-                                monitor_1 = null;
+                            resolve(hasCompleted);
+                        }
+                        else {
+                            _this.app.getRootNav().remove(undefined, undefined, CLEANUP_ANIMATE).then(function () {
+                                if (root.done)
+                                    try {
+                                        root.done(false, isAsync, enteringName, leavingName, direction);
+                                    }
+                                    catch (e) {
+                                        _this.debug(e);
+                                    }
+                                reject(false);
+                            }, function () {
+                                if (root.done)
+                                    try {
+                                        root.done(false, isAsync, enteringName, leavingName, direction);
+                                    }
+                                    catch (e) {
+                                        _this.debug(e);
+                                    }
+                                reject(false);
                             });
                         }
-                        if (root.done)
-                            try {
-                                root.done(hasCompleted, isAsync, enteringName, leavingName, direction);
-                            }
-                            catch (e) {
-                                _this.debug(e);
-                            }
-                        resolve(hasCompleted);
                     })["catch"](function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                         if (root.done)
                             try {
@@ -190,7 +215,9 @@ var Router = (function () {
                             page: this.config[d].page,
                             params: this.config[d].params,
                             options: this.config[d].options,
-                            done: this.config[d].done
+                            done: this.config[d].done,
+                            nav: undefined,
+                            setRoot: true
                         };
                         break;
                     }
@@ -214,7 +241,9 @@ var Router = (function () {
                                 page: this.config[d].page,
                                 params: this.utils.mergeObject(params, this.config[d].params),
                                 options: this.config[d].options,
-                                done: this.config[d].done
+                                done: this.config[d].done,
+                                nav: undefined,
+                                setRoot: true
                             };
                             break;
                         }
@@ -371,10 +400,25 @@ var Router = (function () {
     Router.prototype.viewInterceptor = function () {
         var _this = this;
         this.app.viewWillEnter.subscribe(function (ev) {
+            var _nav = ev['_nav'];
+            //console.log(312, ev)
+            //console.log(123, _nav.remove)
+            //console.log(132, _nav.push)
+            //console.log(321, _nav.setRoot)
             if (_this.canPush(ev.instance).status == false || _this.checkIfBanned(ev.instance) == true) {
-                _this.app.getRootNav().remove(undefined, undefined, CLEANUP_ANIMATE).then(function () {
-                    _this.push(ev.instance.constructor, ev.data);
-                });
+                if ((ev['_nav']['parent']) == null) {
+                    // this.app.getRootNav().remove(undefined, undefined, CLEANUP_ANIMATE).then(() => {
+                    //     this.push(ev.instance.constructor, ev.data)
+                    // })
+                    _this.push(ev.instance.constructor, ev.data).then(function () {
+                        ev.dismiss(undefined, undefined, CLEANUP_ANIMATE);
+                    });
+                }
+                else {
+                    _this._push(ev.instance.constructor, ev.data, undefined, undefined, ev['_nav'], !_this.subNavUsePush).then(function () {
+                        ev.dismiss(undefined, undefined, CLEANUP_ANIMATE);
+                    });
+                }
             }
         });
     };
@@ -479,7 +523,11 @@ var Router = (function () {
         else
             return { status: true, code: 0, reason: 'Info:ok to push' };
     };
-    Router.prototype.push = function (name, params, options, done, nav) {
+    Router.prototype.push = function (name, params, options, done) {
+        if (options === void 0) { options = PUSH_ANIMATE; }
+        return this._push(name, params, options, done, undefined, undefined);
+    };
+    Router.prototype._push = function (name, params, options, done, nav, setRoot, pushState) {
         var _this = this;
         if (options === void 0) { options = PUSH_ANIMATE; }
         if (typeof name == 'string' && name.indexOf('/') >= 0) {
@@ -527,7 +575,7 @@ var Router = (function () {
                 params: toPage ? this.utils.mergeObject(params, toPage.params) : params,
                 options: toPage ? this.utils.mergeObject(options, toPage.options, PUSH_ANIMATE) : this.utils.mergeObject(options, PUSH_ANIMATE),
                 done: done,
-                nav: nav
+                nav: nav ? nav : this.app.getRootNav()
             },
             callerName: 'push',
             instance: this.push.bind(this),
@@ -550,11 +598,13 @@ var Router = (function () {
                         page: null,
                         params: null,
                         options: null,
-                        done: null
+                        done: null,
+                        nav: undefined,
+                        setRoot: undefined
                     };
                     return this.app.getRootNav().push(toClass, params, options).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                         var removeCount = _this.cleanupPopStack();
-                        _this.pushState();
+                        _this.pushState(pushState);
                         removeCount = 0;
                         if (removeCount > 0) {
                             _this.disableOnpopstate();
@@ -629,7 +679,11 @@ var Router = (function () {
                                 }
                             if (done)
                                 done(data);
-                        }
+                        },
+                        nav: function () {
+                            return nav;
+                        },
+                        setRoot: setRoot
                     };
                     var _done_1 = !toPage.redirect.done ? redirectPage_1.done : function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                         if (redirectPage_1.done)
@@ -644,7 +698,7 @@ var Router = (function () {
                     };
                     return this.app.getRootNav().push(redirectPage_1.page, !toPage.redirect.params ? redirectPage_1.params : this.utils.mergeObject(toPage.redirect.params, redirectPage_1.params), !toPage.redirect.options ? this.utils.mergeObject(this.utils.deepCopy(redirectPage_1 ? redirectPage_1.options : {}), PUSH_ANIMATE) : this.utils.mergeObject(this.utils.deepCopy(toPage.redirect.options), this.utils.mergeObject(this.utils.deepCopy(redirectPage_1 ? redirectPage_1.options : {}), PUSH_ANIMATE), PUSH_ANIMATE)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                         var removeCount = _this.cleanupPopStack();
-                        _this.pushState();
+                        _this.pushState(pushState);
                         removeCount = 0;
                         if (removeCount > 0) {
                             _this.disableOnpopstate();
@@ -682,12 +736,14 @@ var Router = (function () {
                         page: undefined,
                         params: undefined,
                         options: undefined,
-                        done: undefined
+                        done: undefined,
+                        nav: undefined,
+                        setRoot: undefined
                     };
                 }
                 return this.app.getRootNav().push(toClass, toPage ? this.utils.mergeObject(params, toPage.params) : params, toPage ? this.utils.mergeObject(options, toPage.options, PUSH_ANIMATE) : this.utils.mergeObject(options, PUSH_ANIMATE)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                     var removeCount = _this.cleanupPopStack();
-                    _this.pushState();
+                    _this.pushState(pushState);
                     removeCount = 0;
                     if (removeCount > 0) {
                         _this.disableOnpopstate();
@@ -1179,7 +1235,9 @@ var Router = (function () {
                             catch (e) {
                                 _this.debug(e);
                             }
-                    }
+                    },
+                    nav: undefined,
+                    setRoot: undefined
                 };
             }
             else {
@@ -1200,7 +1258,9 @@ var Router = (function () {
                                         catch (e) {
                                             _this.debug(e);
                                         }
-                                }
+                                },
+                                nav: undefined,
+                                setRoot: undefined
                             } };
                     }
                 };
@@ -1223,7 +1283,11 @@ var Router = (function () {
                 });
         }
         var _getNext = this.getNextPage();
-        var lastView = this.app.getRootNav().last(), currentPage = this.getPageConfig(lastView ? lastView.instance : null);
+        var lastView = this.app.getRootNav().last(), currentPage = this.getPageConfig(lastView ? lastView.instance : null), nav = _getNext ? (_getNext.nav ? (_getNext.nav() ? _getNext.nav() : this.app.getRootNav()) : this.app.getRootNav()) : this.app.getRootNav(), pushMethod = _getNext ? (_getNext.setRoot == true ? 'setRoot' : 'push') : 'push';
+        var needPop = false;
+        if (_getNext && _getNext.nav && _getNext.nav()) {
+            needPop = true;
+        }
         if (_getNext) {
             if (emiya_angular2_event_1.Event.emit('push', {
                 fromPage: {
@@ -1238,14 +1302,7 @@ var Router = (function () {
                     params: _getNext.params,
                     view: null
                 },
-                callParams: {
-                    srcName: _getNext.srcName,
-                    srcPage: _getNext.srcPage,
-                    name: _getNext.name,
-                    params: _getNext.params,
-                    options: _getNext.options,
-                    done: _getNext.done
-                },
+                callParams: _getNext,
                 callerName: 'next',
                 instance: this.next.bind(this),
                 canPush: this.canPush(_getNext.name)
@@ -1258,22 +1315,45 @@ var Router = (function () {
             var _nextPage_1 = this.nextPage;
             this.nextPage = null;
             if (_nextPage_1.page)
-                return this.app.getRootNav().push(_nextPage_1.page, _nextPage_1.params, _nextPage_1.options).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
+                return nav[pushMethod](_nextPage_1.page, _nextPage_1.params, _nextPage_1.options).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                     var removeCount = _this.cleanupPopStack(_nextPage_1.srcPage);
-                    _this.pushState();
-                    removeCount = 0;
-                    if (removeCount > 0) {
-                        _this.disableOnpopstate();
-                        window.history.go(-removeCount);
+                    if (needPop == false) {
+                        _this.pushState();
+                        removeCount = 0;
+                        if (removeCount > 0) {
+                            _this.disableOnpopstate();
+                            window.history.go(-removeCount);
+                        }
+                        _this.tokenHook();
+                        if (_nextPage_1.done)
+                            try {
+                                _nextPage_1.done(hasCompleted, isAsync, enteringName, leavingName, direction);
+                            }
+                            catch (e) {
+                                _this.debug(e);
+                            }
                     }
-                    _this.tokenHook();
-                    if (_nextPage_1.done)
-                        try {
-                            _nextPage_1.done(hasCompleted, isAsync, enteringName, leavingName, direction);
-                        }
-                        catch (e) {
-                            _this.debug(e);
-                        }
+                    else {
+                        _this.popStack(_nextPage_1.srcPage).then(function () {
+                            _this.pushState(true);
+                            _this.tokenHook();
+                            if (_nextPage_1.done)
+                                try {
+                                    _nextPage_1.done(hasCompleted, isAsync, enteringName, leavingName, direction);
+                                }
+                                catch (e) {
+                                    _this.debug(e);
+                                }
+                        })["catch"](function (hasCompleted0, isAsync0, enteringName0, leavingName0, direction0) {
+                            if (_nextPage_1.done)
+                                try {
+                                    _nextPage_1.done(hasCompleted0, isAsync0, enteringName0, leavingName0, direction0);
+                                }
+                                catch (e) {
+                                    _this.debug(e);
+                                }
+                        });
+                    }
                 })["catch"](function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                     if (_nextPage_1.done)
                         try {
@@ -1306,7 +1386,7 @@ var Router = (function () {
                         if (currentPage.next.done)
                             currentPage.next.done(hasCompleted, isAsync, enteringName, leavingName, direction);
                     };
-                return this.app.getRootNav().push(this.getPage(currentPage.next.name), !nextConfig_2.next.params ? (nextConfig_2 ? nextConfig_2.params : null) : this.utils.mergeObject(currentPage.next.params, (nextConfig_2 ? nextConfig_2.params : null)), !nextConfig_2.next.options ? (nextConfig_2 ? this.utils.mergeObject(this.utils.deepCopy(nextConfig_2.options), PUSH_ANIMATE) : PUSH_ANIMATE) : this.utils.mergeObject(currentPage.next.options, (nextConfig_2 ? this.utils.mergeObject(this.utils.deepCopy(nextConfig_2.options), PUSH_ANIMATE) : PUSH_ANIMATE), PUSH_ANIMATE))
+                return nav[pushMethod](this.getPage(currentPage.next.name), (!currentPage.next || !currentPage.next.params) ? (nextConfig_2 ? nextConfig_2.params : null) : this.utils.mergeObject(currentPage.next.params, (nextConfig_2 ? nextConfig_2.params : null)), (!currentPage.next || !currentPage.next.options) ? (nextConfig_2 ? this.utils.mergeObject(this.utils.deepCopy(nextConfig_2.options), PUSH_ANIMATE) : PUSH_ANIMATE) : this.utils.mergeObject(currentPage.next.options, (nextConfig_2 ? this.utils.mergeObject(this.utils.deepCopy(nextConfig_2.options), PUSH_ANIMATE) : PUSH_ANIMATE), PUSH_ANIMATE))
                     .then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                     var removeCount = _this.cleanupPopStack();
                     _this.pushState();
@@ -1336,7 +1416,7 @@ var Router = (function () {
             else {
                 var _loop_2 = function (c) {
                     if (this_2.config[c].root == true) {
-                        return { value: this_2.app.getRootNav().push(this_2.config[c].page, this_2.config[c].params, this_2.utils.mergeObject(this_2.utils.deepCopy(this_2.config[c].options), PUSH_ANIMATE)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
+                        return { value: nav[pushMethod](this_2.config[c].page, this_2.config[c].params, this_2.utils.mergeObject(this_2.utils.deepCopy(this_2.config[c].options), PUSH_ANIMATE)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                                 _this.cleanupPopStack(undefined, true);
                                 var removeCount = _this.cleanupPopStack();
                                 _this.pushState();
