@@ -149,8 +149,8 @@ import {Routes} from 'Routes';
 export class MyApp {
 
 constructor(platform: Platform, router: Router,) {
-    router.setVersion('Hello World',10000) //optional,shoulde be called before load() to tell router about app version.When this step skipped,the router will try to get app version from cordova-plugin-app-version automatically
     let result=router.load(Routes); //load config
+    let result=router.load(Routes,'Hello World',10000); //load route config and appversion info
     result.then((ev)=>{}).catch((err)=>{}) //it's a promise which tell you whether the first page is being pushed successfully or not
     platform.ready().then(() => {
       StatusBar.styleDefault();
