@@ -91,7 +91,7 @@ var Router = (function () {
     Router.prototype.loadRootPage = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.platform.ready().then(function () {
+            var loadroot = function () {
                 var defaultP = new Promise(function (resolve, reject) {
                     resolve(' ');
                 }), p0 = defaultP, p1 = defaultP;
@@ -179,7 +179,15 @@ var Router = (function () {
                 })["catch"](function (data) {
                     hander(null, 1);
                 });
-            })["catch"](function (data) { return reject(data); });
+            };
+            if (_this.appVersionSetByManul != false) {
+                loadroot();
+            }
+            else {
+                _this.platform.ready().then(function () {
+                    loadroot();
+                })["catch"](function (data) { return reject(data); });
+            }
         });
     };
     Router.prototype.getRootPage = function () {
@@ -291,7 +299,12 @@ var Router = (function () {
         this.packageVersion = increment;
         this.appVersionSetByManul = true;
     };
-    Router.prototype.load = function (config) {
+    Router.prototype.load = function (config, name, increment) {
+        if (name === void 0) { name = null; }
+        if (increment === void 0) { increment = null; }
+        if (name != null || increment != null) {
+            this.setVersion(name, increment);
+        }
         this.config = [];
         this.banRouter = [];
         config = this.utils.deepCopy(config);

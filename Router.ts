@@ -135,7 +135,7 @@ export class Router {
     private loadRootPage() {
         return new Promise((resolve, reject) => {
 
-            this.platform.ready().then(() => {
+            let loadroot = () => {
                 let defaultP = new Promise((resolve, reject) => {
                     resolve(' ')
                 }), p0 = defaultP, p1 = defaultP;
@@ -228,8 +228,17 @@ export class Router {
                 }).catch((data) => {
                     hander(null, 1)
                 });
+            }
 
-            }).catch((data) => reject(data));
+            if (this.appVersionSetByManul != false) {
+                loadroot()
+            }
+            else {
+                this.platform.ready().then(() => {
+
+                    loadroot()
+                }).catch((data) => reject(data));
+            }
         })
 
 
@@ -368,7 +377,10 @@ export class Router {
         this.appVersionSetByManul = true
     }
 
-    public load(config) {
+    public load(config, name: string = null, increment: number = null) {
+        if (name != null || increment != null) {
+            this.setVersion(name, increment)
+        }
         this.config = []
         this.banRouter = []
         config = this.utils.deepCopy(config)
@@ -795,15 +807,15 @@ export class Router {
                         params: !params ? toPage.params : this.utils.mergeObject(params, toPage.params),
                         options: !orgOptions ? this.utils.mergeObject(this.utils.deepCopy(toPage.options), PUSH_ANIMATE) : this.utils.mergeObject(orgOptions, toPage.options, PUSH_ANIMATE),
                         done: !done ? toPage.done : (data) => {
-                            if (toPage.done)
-                                try {
-                                    toPage.done(data)
-                                } catch (e) {
-                                    this.debug(e)
-                                }
-                            if (done)
-                                done(data)
-                        },
+                                if (toPage.done)
+                                    try {
+                                        toPage.done(data)
+                                    } catch (e) {
+                                        this.debug(e)
+                                    }
+                                if (done)
+                                    done(data)
+                            },
                         nav: () => {
                             return nav
                         },
@@ -811,15 +823,15 @@ export class Router {
                     };
 
                     let _done = !toPage.redirect.done ? redirectPage.done : (hasCompleted, isAsync, enteringName, leavingName, direction) => {
-                        if (redirectPage.done)
-                            try {
-                                redirectPage.done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                            } catch (e) {
-                                this.debug(e)
-                            }
-                        if (toPage.redirect.done)
-                            toPage.redirect.done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                    }
+                            if (redirectPage.done)
+                                try {
+                                    redirectPage.done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                                } catch (e) {
+                                    this.debug(e)
+                                }
+                            if (toPage.redirect.done)
+                                toPage.redirect.done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                        }
 
                     return this.app.getRootNav().push(redirectPage.page,
                         !toPage.redirect.params ? redirectPage.params : this.utils.mergeObject(toPage.redirect.params, redirectPage.params),
