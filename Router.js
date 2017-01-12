@@ -320,7 +320,8 @@ var Router = (function () {
             else
                 this.banRouter.push(this.utils.deepCopy(config[c]));
         }
-        this.loadRootPage();
+        return this.loadRootPage()['catch'](function () {
+        });
     };
     Router.prototype.getBannedPageConfig = function (name) {
         for (var c in this.banRouter) {

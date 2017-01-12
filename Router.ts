@@ -397,7 +397,9 @@ export class Router {
                 this.banRouter.push(this.utils.deepCopy(config[c]))
         }
 
-        this.loadRootPage()
+        return this.loadRootPage()['catch'](() => {
+
+        })
     }
 
     public getBannedPageConfig(name) {
