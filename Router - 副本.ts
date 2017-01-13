@@ -21,9 +21,7 @@ import {
     REDIRECT_CONFIG_NOTFOUND_1,
     APP_EXIT,
     PUSH_OVERRIDE,
-    ATTEMPT_ENTER_TOKEN_INREQUIRED_PAGE_WITH_TOKEN,
-    MORE_THEN_ONE_ROOT_PAGE_FOUND,
-    ROOT_PAGE_NOT_FOUND
+    ATTEMPT_ENTER_TOKEN_INREQUIRED_PAGE_WITH_TOKEN
 } from './StatusCode'
 import {FunctionExpr} from "../shop/ionic-2.1.13/node_modules/@angular/compiler/src/output/output_ast";
 
@@ -394,30 +392,16 @@ export class Router {
             _config.push(config[c]);
         }
         config = _config
-        let hasroot = 0;
         for (let c in config) {
-            if (config[c].enable != false) {
+            if (config[c].enable != false)
                 this.config.push(this.utils.deepCopy(config[c]))
-                if (config[c].root == true)
-                    ++hasroot;
-            }
             else
                 this.banRouter.push(this.utils.deepCopy(config[c]))
         }
 
-        if (hasroot == 1)
-            return this.loadRootPage()['catch'](() => {
+        return this.loadRootPage()['catch'](() => {
 
-            })
-        else if (hasroot == 0) {
-            return new Promise((resolve, reject) => {
-                reject(ROOT_PAGE_NOT_FOUND)
-            })
-        } else {
-            return new Promise((resolve, reject) => {
-                reject(MORE_THEN_ONE_ROOT_PAGE_FOUND)
-            })
-        }
+        })
     }
 
     public getBannedPageConfig(name) {
@@ -571,16 +555,16 @@ export class Router {
                 this.tokenListener.unsubscribe();
             this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, () => {
                 if (pageConfig.popOnTokenInvalid == true) {
-                    //if (this.app.getRootNav().canGoBack() == true)
-                    this.pop()
-                    // else {
-                    //     for (let c in this.config) {
-                    //         if (this.config[c].root == true) {
-                    //             this.push(this.config[c].page, this.config[c].params, this.config[c].options, this.config[c].done)
-                    //             break
-                    //         }
-                    //     }
-                    // }
+                    if (this.app.getRootNav().canGoBack() == true)
+                        this.pop()
+                    else {
+                        for (let c in this.config) {
+                            if (this.config[c].root == true) {
+                                this.push(this.config[c].page, this.config[c].params, this.config[c].options, this.config[c].done)
+                                break
+                            }
+                        }
+                    }
                 }
                 else
                     this.push(pageConfig.page, pageConfig.params, pageConfig.options, pageConfig.done)
@@ -884,27 +868,7 @@ export class Router {
 
                 } else {
                     this.debug(name + ' 不满足进入该页面所需条件');
-                    if (!lastView) {
-
-                        if (toPage.next && toPage.next.name) {
-                            let _tonextpage = this.getPageConfig(toPage.next.name)
-                            if (_tonextpage)
-                                this.nextPage = {
-                                    srcName: undefined,
-                                    srcPage: undefined,
-                                    name: _tonextpage.id,
-                                    page: _tonextpage.page,
-                                    params: _tonextpage.params,
-                                    options: this.utils.mergeObject(this.utils.deepCopy(_tonextpage.options), PUSH_ANIMATE),
-                                    done: _tonextpage.done,
-                                    nav: undefined,
-                                    setRoot: undefined
-                                };
-                        }
-
-                        return this.next()
-                    }
-                    else if (pageConfig && pageConfig.tokens && pageConfig.tokens.length > 0 && pageConfig.reverse == true)
+                    if (pageConfig.tokens && pageConfig.tokens.length > 0 && pageConfig.reverse == true)
                         return this.next()
                     else
                         return new Promise((resolve, reject) => {
@@ -985,23 +949,15 @@ export class Router {
     }
 
     public getGoBackPage(): any {
-        let className, currentPageConfig = this.getPageConfig(this.app.getRootNav().last().instance), _lastpage = this.getPageConfig(this.app.getRootNav().getPrevious() ? this.app.getRootNav().getPrevious().instance : null)
+        let className, currentPageConfig = this.getPageConfig(this.app.getRootNav().last().instance), lastpage = this.getPageConfig(this.app.getRootNav().getPrevious() ? this.app.getRootNav().getPrevious().instance : null)
 
-        if ((this.app.getRootNav().canGoBack() == false && (!currentPageConfig || currentPageConfig.root != true)) || (currentPageConfig && currentPageConfig.pop && currentPageConfig.pop.name && currentPageConfig.pop.force == true && this.canPush(currentPageConfig.pop.name)['status'] == true && (!_lastpage || _lastpage.page != this.getPageConfig(currentPageConfig.pop.name).page))) {
+        if ((this.app.getRootNav().canGoBack() == false && (!currentPageConfig || currentPageConfig.root != true)) || (currentPageConfig && currentPageConfig.pop && currentPageConfig.pop.name && currentPageConfig.pop.force == true)) {
 
             let popPage;
             if (currentPageConfig && currentPageConfig.pop && currentPageConfig.pop.name) {
                 popPage = currentPageConfig.pop
                 popPage.id = popPage.name
                 popPage.page = this.getPage(currentPageConfig.pop.name)
-                if (this.canPush(popPage.page)['status'] == true && (_lastpage && _lastpage.page == this.getPageConfig(currentPageConfig.pop.name).page)) {
-                    return {
-                        name: popPage.id,
-                        params: this.app.getRootNav().getPrevious()['data'],
-                        view: this.app.getRootNav().getPrevious(),
-                        component: popPage.page
-                    }
-                }
             }
             else
                 popPage = this.getRootPageConfig()
@@ -1010,46 +966,19 @@ export class Router {
             else
                 return {name: null, params: null, component: null}
         }
-        // else if (this.app.getRootNav().canGoBack() == true && _lastpage && _lastpage.root == true && this.canPush(_lastpage.page)['status'] == false) {
-        //     return {name: null, params: null, component: null}
-        // }
+        else if (this.app.getRootNav().canGoBack() == true && lastpage && lastpage.root == true && this.canPush(lastpage.page)['status'] == false) {
+            return {name: null, params: null, component: null}
+        }
         else if ((!currentPageConfig || currentPageConfig.root != true) && this.app.getRootNav().canGoBack() == true) {
 
             let lastPageConfig = this.getPageConfig(this.app.getRootNav().getPrevious(this.app.getRootNav().last()).instance)
 
-
-            let popPage;
-            for (let c = this.app.getRootNav().length() - 2; c >= 0; --c) {
-                if (this.canPush(this.app.getRootNav().getByIndex(c).instance)['status'] == true) {
-                    //foundpoppage = true;
-                    popPage = this.app.getRootNav().getByIndex(c);
-
-                    let popPageConfig = this.getPageConfig(this.app.getRootNav().getByIndex(c).instance);
-
-                    return {
-                        name: popPageConfig ? popPageConfig.id : this.app.getRootNav().getByIndex(c).name,
-                        params: this.app.getRootNav().getByIndex(c)['data'],
-                        view: this.app.getRootNav().getByIndex(c),
-                        component: this.app.getRootNav().getByIndex(c)['component']
-                    }
-                }
+            return {
+                name: lastPageConfig ? lastPageConfig.id : this.app.getRootNav().getPrevious(this.app.getRootNav().last()).name,
+                params: this.app.getRootNav().getPrevious(this.app.getRootNav().last()) ? this.app.getRootNav().getPrevious(this.app.getRootNav().last())['data'] : null,
+                view: this.app.getRootNav().getPrevious(this.app.getRootNav().last()),
+                component: this.app.getRootNav().getPrevious(this.app.getRootNav().last())['component']
             }
-
-
-            let rootpage = this.getRootPageConfig();
-
-            if (this.canPush(rootpage.page)['status'] == true) {
-                return {name: rootpage.id, params: rootpage.params, component: rootpage.page}
-            }
-
-            // return {
-            //     name: lastPageConfig ? lastPageConfig.id : this.app.getRootNav().getPrevious(this.app.getRootNav().last()).name,
-            //     params: this.app.getRootNav().getPrevious(this.app.getRootNav().last()) ? this.app.getRootNav().getPrevious(this.app.getRootNav().last())['data'] : null,
-            //     view: this.app.getRootNav().getPrevious(this.app.getRootNav().last()),
-            //     component: this.app.getRootNav().getPrevious(this.app.getRootNav().last())['component']
-            // }
-
-            return {name: null, params: null, component: null}
         }
         else {
             return {name: null, params: null, component: null}
@@ -1095,58 +1024,20 @@ export class Router {
             let className
 
 
-            if ((this.app.getRootNav().canGoBack() == false && (!currentPage || currentPage.root != true)) || (currentPage && currentPage.pop && currentPage.pop.name && currentPage.pop.force == true && this.canPush(currentPage.pop.name)['status'] == true && (!_lastpage || _lastpage.page != this.getPageConfig(currentPage.pop.name).page))) {
-                if (this.nextPage && this.utils.notNull(this.nextPage.srcPage) && this.app.getRootNav().canGoBack() == true && this.app.getRootNav().getPrevious(this.app.getRootNav().last()).instance instanceof this.nextPage.srcPage) {
-                    this.nextPage = null;
-                }
+            if ((this.app.getRootNav().canGoBack() == false && (!currentPage || currentPage.root != true)) || (currentPage && currentPage.pop && currentPage.pop.name && currentPage.pop.force == true)) {
 
                 let popPage;
                 if (currentPage && currentPage.pop && currentPage.pop.name) {
                     popPage = currentPage.pop
                     popPage.page = this.getPage(currentPage.pop.name)
-
-                    if (this.canPush(popPage.page)['status'] == true && (_lastpage && _lastpage.page == this.getPageConfig(currentPage.pop.name).page)) {
-                        return this.app.getRootNav().pop(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                            this.tokenHook()
-                            if (doNotGoHistory == false) {
-                                this.disableOnpopstate()
-
-                                this.pushState(true)
-
-
-                            }
-                            if (done)
-                                try {
-                                    done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                                } catch (e) {
-                                    this.debug(e)
-                                }
-
-                        }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                            if (done)
-                                try {
-                                    done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                                } catch (e) {
-                                    this.debug(e)
-                                }
-                        });
-                    }
-
                 }
                 else
                     popPage = this.getRootPageConfig()
-
                 if (this.canPush(popPage.page)['status'] == true)
                     return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         this.tokenHook()
                         this.cleanupPopStack(null, true)
-                        if (doNotGoHistory == false) {
-                            this.disableOnpopstate()
-
-                            this.pushState(true)
-
-
-                        }
+                        this.pushState(true)
                         if (done)
                             try {
                                 done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -1188,103 +1079,7 @@ export class Router {
                     }
                 }
             }
-            // else if (this.app.getRootNav().canGoBack() == true && _lastpage && _lastpage.root == true && this.canPush(_lastpage.page)['status'] == false) {
-            //     if (!this.exitCallback || this.exitCallback(event) == true) {
-            //
-            //
-            //         if (Event.emit('appWillExit', event).defaultPrevented == false) {
-            //
-            //             this.platform.exitApp()
-            //
-            //             this.pushState(true)
-            //
-            //
-            //             return new Promise((resolve, reject) => {
-            //
-            //                 resolve(APP_EXIT)
-            //             })
-            //         } else
-            //             return new Promise((resolve, reject) => {
-            //                 reject(EXIT_APP_PREVENTED)
-            //             })
-            //     } else {
-            //         return new Promise((resolve, reject) => {
-            //             reject(EXIT_APP_PREVENTED)
-            //         })
-            //     }
-            // }
-            else if ((!currentPage || currentPage.root != true) && this.app.getRootNav().canGoBack() == true) {
-                if (this.nextPage && this.utils.notNull(this.nextPage.srcPage) && this.app.getRootNav().getPrevious(this.app.getRootNav().last()).instance instanceof this.nextPage.srcPage) {
-                    this.nextPage = null;
-                }
-
-                //let foundpoppage = false;
-                let popPage;
-                for (let c = this.app.getRootNav().length() - 2; c >= 0; --c) {
-                    if (this.canPush(this.app.getRootNav().getByIndex(c).instance)['status'] == true) {
-                        //foundpoppage = true;
-                        popPage = this.app.getRootNav().getByIndex(c);
-
-
-                        return this.app.getRootNav().remove(c + 1, this.app.getRootNav().length() - c - 1, popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                            this.tokenHook()
-                            if (doNotGoHistory == false) {
-                                this.disableOnpopstate()
-
-                                this.pushState(true)
-
-
-                            }
-                            if (done)
-                                try {
-                                    done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                                } catch (e) {
-                                    this.debug(e)
-                                }
-
-                        }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                            if (done)
-                                try {
-                                    done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                                } catch (e) {
-                                    this.debug(e)
-                                }
-                        });
-                    }
-                }
-
-
-                let rootpage = this.getRootPageConfig();
-
-                if (this.canPush(rootpage.page)['status'] == true) {
-                    return this.app.getRootNav().push(rootpage.page, rootpage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                        this.tokenHook()
-                        this.cleanupPopStack(null, true)
-                        if (doNotGoHistory == false) {
-                            this.disableOnpopstate()
-
-                            this.pushState(true)
-
-
-                        }
-                        if (done)
-                            try {
-                                done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                            } catch (e) {
-                                this.debug(e)
-                            }
-
-                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                        if (done)
-                            try {
-                                done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                            } catch (e) {
-                                this.debug(e)
-                            }
-                    });
-                }
-
-
+            else if (this.app.getRootNav().canGoBack() == true && _lastpage && _lastpage.root == true && this.canPush(_lastpage.page)['status'] == false) {
                 if (!this.exitCallback || this.exitCallback(event) == true) {
 
 
@@ -1308,31 +1103,36 @@ export class Router {
                         reject(EXIT_APP_PREVENTED)
                     })
                 }
+            }
+            else if ((!currentPage || currentPage.root != true) && this.app.getRootNav().canGoBack() == true) {
+                if (this.nextPage && this.utils.notNull(this.nextPage.srcPage) && this.app.getRootNav().getPrevious(this.app.getRootNav().last()).instance instanceof this.nextPage.srcPage) {
+                    this.nextPage = null;
+                }
 
-                // return this.app.getRootNav().pop(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                //     this.tokenHook()
-                //     if (doNotGoHistory == false) {
-                //         this.disableOnpopstate()
-                //
-                //         this.pushState(true)
-                //
-                //
-                //     }
-                //     if (done)
-                //         try {
-                //             done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                //         } catch (e) {
-                //             this.debug(e)
-                //         }
-                //
-                // }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                //     if (done)
-                //         try {
-                //             done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                //         } catch (e) {
-                //             this.debug(e)
-                //         }
-                // });
+                return this.app.getRootNav().pop(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+                    this.tokenHook()
+                    if (doNotGoHistory == false) {
+                        this.disableOnpopstate()
+
+                        this.pushState(true)
+
+
+                    }
+                    if (done)
+                        try {
+                            done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                        } catch (e) {
+                            this.debug(e)
+                        }
+
+                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+                    if (done)
+                        try {
+                            done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                        } catch (e) {
+                            this.debug(e)
+                        }
+                });
 
             }
             else {
@@ -1584,7 +1384,7 @@ export class Router {
 
             let removeCount = this.app.getRootNav().length() - 1 - c
 
-            return this.app.getRootNav().popTo(view, undefined, this.utils.mergeObject(options, POP_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+            return this.app.getRootNav().popTo(view, this.utils.mergeObject(options, POP_ANIMATE)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                 this.tokenHook()
                 if (removeCount > 0) {
                     this.disableOnpopstate()
@@ -1635,7 +1435,7 @@ export class Router {
     }
 
     public getNextPage() {
-        let currentPage = this.getPageConfig(this.app.getRootNav().last() ? this.app.getRootNav().last().instance : null)
+        let currentPage = this.getPageConfig(this.app.getRootNav().last().instance)
         if (this.nextPage && (!currentPage || !currentPage.next || (currentPage.next.force != true))) {
             return this.utils.deepCopy(this.nextPage)
         } else {

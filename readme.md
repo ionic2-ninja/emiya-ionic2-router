@@ -290,6 +290,8 @@ constructor(router: Router) {
 * -280 can not found redirect page config
 * -300 app exited
 * -310 attempt to enter a token inrequired page with token alreay existed
+* -320 more than one root page found
+* -330 root page not found
 * -400 fail to push first page because it's overrided by another transition 
 
 * false throw by ionic2&angular2 stock api

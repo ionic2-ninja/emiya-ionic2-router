@@ -18,3 +18,5 @@ export const PUSH_OVERRIDE = -400
 export const TRANSITION_SUCCESS = true;
 export const TRANSITION_FAILURE = false
 export const ATTEMPT_ENTER_TOKEN_INREQUIRED_PAGE_WITH_TOKEN = -310;
+export const MORE_THEN_ONE_ROOT_PAGE_FOUND = -320;
+export const ROOT_PAGE_NOT_FOUND = -330;
