@@ -20,7 +20,8 @@ import {
     REDIRECT_CONFIG_NOTFOUND_0,
     REDIRECT_CONFIG_NOTFOUND_1,
     APP_EXIT,
-    PUSH_OVERRIDE
+    PUSH_OVERRIDE,
+    ATTEMPT_ENTER_TOKEN_INREQUIRED_PAGE_WITH_TOKEN
 } from './StatusCode'
 import {FunctionExpr} from "../shop/ionic-2.1.13/node_modules/@angular/compiler/src/output/output_ast";
 
@@ -158,7 +159,7 @@ export class Router {
                         reject(PUSH_OVERRIDE)
                         return
                     }
-                    this.app.getRootNav().setRoot(root.page, root.params, root.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+                    this.push(root.page, root.params, root.options).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
                         if (this.canPush(root.page)['status'] == true) {
                             this.pushState(root.doNotReplaceState != true)
                             if (this.utils.notNull(root.duration)) {
@@ -184,6 +185,7 @@ export class Router {
 
                             }
                             this.tokenHook()
+                            this.app.getRootNav().remove(0, this.app.getRootNav().length() - 1, CLEANUP_ANIMATE)
                             if (root.done)
                                 try {
                                     root.done(hasCompleted, isAsync, enteringName, leavingName, direction)
@@ -801,28 +803,29 @@ export class Router {
                         })
                     }
 
-                    this.nextPage = {
-                        srcName: pageConfig.id,
-                        srcPage: pageConfig.page,
-                        name: toPage.id,
-                        page: toPage.page,
-                        params: !params ? toPage.params : this.utils.mergeObject(params, toPage.params),
-                        options: !orgOptions ? this.utils.mergeObject(this.utils.deepCopy(toPage.options), PUSH_ANIMATE) : this.utils.mergeObject(orgOptions, toPage.options, PUSH_ANIMATE),
-                        done: !done ? toPage.done : (data) => {
-                                if (toPage.done)
-                                    try {
-                                        toPage.done(data)
-                                    } catch (e) {
-                                        this.debug(e)
-                                    }
-                                if (done)
-                                    done(data)
+                    if (pageConfig)
+                        this.nextPage = {
+                            srcName: pageConfig.id,
+                            srcPage: pageConfig.page,
+                            name: toPage.id,
+                            page: toPage.page,
+                            params: !params ? toPage.params : this.utils.mergeObject(params, toPage.params),
+                            options: !orgOptions ? this.utils.mergeObject(this.utils.deepCopy(toPage.options), PUSH_ANIMATE) : this.utils.mergeObject(orgOptions, toPage.options, PUSH_ANIMATE),
+                            done: !done ? toPage.done : (data) => {
+                                    if (toPage.done)
+                                        try {
+                                            toPage.done(data)
+                                        } catch (e) {
+                                            this.debug(e)
+                                        }
+                                    if (done)
+                                        done(data)
+                                },
+                            nav: () => {
+                                return nav
                             },
-                        nav: () => {
-                            return nav
-                        },
-                        setRoot: setRoot
-                    };
+                            setRoot: setRoot
+                        };
 
                     let _done = !toPage.redirect.done ? redirectPage.done : (hasCompleted, isAsync, enteringName, leavingName, direction) => {
                             if (redirectPage.done)
@@ -865,7 +868,12 @@ export class Router {
 
                 } else {
                     this.debug(name + ' 不满足进入该页面所需条件');
-                    return this.next()
+                    if (pageConfig.tokens && pageConfig.tokens.length > 0 && pageConfig.reverse == true)
+                        return this.next()
+                    else
+                        return new Promise((resolve, reject) => {
+                            reject(ATTEMPT_ENTER_TOKEN_INREQUIRED_PAGE_WITH_TOKEN)
+                        })
 
                 }
 

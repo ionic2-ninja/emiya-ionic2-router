@@ -110,7 +110,7 @@ var Router = (function () {
                         reject(StatusCode_1.PUSH_OVERRIDE);
                         return;
                     }
-                    _this.app.getRootNav().setRoot(root.page, root.params, root.options).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
+                    _this.push(root.page, root.params, root.options).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                         if (_this.canPush(root.page)['status'] == true) {
                             _this.pushState(root.doNotReplaceState != true);
                             if (_this.utils.notNull(root.duration)) {
@@ -133,6 +133,7 @@ var Router = (function () {
                                 });
                             }
                             _this.tokenHook();
+                            _this.app.getRootNav().remove(0, _this.app.getRootNav().length() - 1, CLEANUP_ANIMATE);
                             if (root.done)
                                 try {
                                     root.done(hasCompleted, isAsync, enteringName, leavingName, direction);
@@ -676,29 +677,30 @@ var Router = (function () {
                             reject(StatusCode_1.REDIRECT_CONFIG_NOTFOUND_1);
                         });
                     }
-                    this.nextPage = {
-                        srcName: pageConfig.id,
-                        srcPage: pageConfig.page,
-                        name: toPage.id,
-                        page: toPage.page,
-                        params: !params ? toPage.params : this.utils.mergeObject(params, toPage.params),
-                        options: !orgOptions ? this.utils.mergeObject(this.utils.deepCopy(toPage.options), PUSH_ANIMATE) : this.utils.mergeObject(orgOptions, toPage.options, PUSH_ANIMATE),
-                        done: !done ? toPage.done : function (data) {
-                            if (toPage.done)
-                                try {
-                                    toPage.done(data);
-                                }
-                                catch (e) {
-                                    _this.debug(e);
-                                }
-                            if (done)
-                                done(data);
-                        },
-                        nav: function () {
-                            return nav;
-                        },
-                        setRoot: setRoot
-                    };
+                    if (pageConfig)
+                        this.nextPage = {
+                            srcName: pageConfig.id,
+                            srcPage: pageConfig.page,
+                            name: toPage.id,
+                            page: toPage.page,
+                            params: !params ? toPage.params : this.utils.mergeObject(params, toPage.params),
+                            options: !orgOptions ? this.utils.mergeObject(this.utils.deepCopy(toPage.options), PUSH_ANIMATE) : this.utils.mergeObject(orgOptions, toPage.options, PUSH_ANIMATE),
+                            done: !done ? toPage.done : function (data) {
+                                if (toPage.done)
+                                    try {
+                                        toPage.done(data);
+                                    }
+                                    catch (e) {
+                                        _this.debug(e);
+                                    }
+                                if (done)
+                                    done(data);
+                            },
+                            nav: function () {
+                                return nav;
+                            },
+                            setRoot: setRoot
+                        };
                     var _done_1 = !toPage.redirect.done ? redirectPage_1.done : function (hasCompleted, isAsync, enteringName, leavingName, direction) {
                         if (redirectPage_1.done)
                             try {
@@ -738,7 +740,12 @@ var Router = (function () {
                 }
                 else {
                     this.debug(name + ' 不满足进入该页面所需条件');
-                    return this.next();
+                    if (pageConfig.tokens && pageConfig.tokens.length > 0 && pageConfig.reverse == true)
+                        return this.next();
+                    else
+                        return new Promise(function (resolve, reject) {
+                            reject(StatusCode_1.ATTEMPT_ENTER_TOKEN_INREQUIRED_PAGE_WITH_TOKEN);
+                        });
                 }
             }
             else {

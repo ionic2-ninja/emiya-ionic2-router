@@ -17,3 +17,4 @@ export const APP_EXIT = -300;
 export const PUSH_OVERRIDE = -400
 export const TRANSITION_SUCCESS = true;
 export const TRANSITION_FAILURE = false
+export const ATTEMPT_ENTER_TOKEN_INREQUIRED_PAGE_WITH_TOKEN = -310;
