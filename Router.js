@@ -76,7 +76,7 @@ var Router = (function () {
         if (this.backButtonCallback)
             this.backButtonCallback();
         this.backButtonCallback = this.platform.registerBackButtonAction(function () {
-            _this.pop();
+            _this.popSafe();
         }, this.utils.notNull(backButtonPrior) ? backButtonPrior : this.defaultBackButtonPrior);
     };
     Router.prototype.changeBackButtonPrior = function (prior) {
@@ -815,7 +815,7 @@ var Router = (function () {
         });
     };
     Router.prototype.getGoBackPage = function () {
-        var className, currentPageConfig = this.getPageConfig(this.app.getRootNav().last().instance);
+        var className, currentPageConfig = this.getPageConfig(this.app.getRootNav().last().instance), lastpage = this.getPageConfig(this.app.getRootNav().getPrevious() ? this.app.getRootNav().getPrevious().instance : null);
         if ((this.app.getRootNav().canGoBack() == false && (!currentPageConfig || currentPageConfig.root != true)) || (currentPageConfig && currentPageConfig.pop && currentPageConfig.pop.name && currentPageConfig.pop.force == true)) {
             var popPage = void 0;
             if (currentPageConfig && currentPageConfig.pop && currentPageConfig.pop.name) {
@@ -825,7 +825,13 @@ var Router = (function () {
             }
             else
                 popPage = this.getRootPageConfig();
-            return { name: popPage.id, params: popPage.params, component: popPage.page };
+            if (this.canPush(popPage.page)['status'] == true)
+                return { name: popPage.id, params: popPage.params, component: popPage.page };
+            else
+                return { name: null, params: null, component: null };
+        }
+        else if (this.app.getRootNav().canGoBack() == true && lastpage && lastpage.root == true && this.canPush(lastpage.page)['status'] == false) {
+            return { name: null, params: null, component: null };
         }
         else if ((!currentPageConfig || currentPageConfig.root != true) && this.app.getRootNav().canGoBack() == true) {
             var lastPageConfig = this.getPageConfig(this.app.getRootNav().getPrevious(this.app.getRootNav().last()).instance);
@@ -850,7 +856,7 @@ var Router = (function () {
         if (options === void 0) { options = POP_ANIMATE; }
         if (done === void 0) { done = null; }
         if (doNotGoHistory === void 0) { doNotGoHistory = false; }
-        var popOptions = this.utils.mergeObject(options, POP_ANIMATE), lastPage = this.getGoBackPage(), currentPage = this.getPageConfig(this.app.getRootNav().last().instance);
+        var popOptions = this.utils.mergeObject(options, POP_ANIMATE), lastPage = this.getGoBackPage(), currentPage = this.getPageConfig(this.app.getRootNav().last().instance), _lastpage = this.getPageConfig(this.app.getRootNav().getPrevious() ? this.app.getRootNav().getPrevious().instance : null);
         var event = {
             fromPage: {
                 view: this.app.getRootNav().last(),
@@ -923,6 +929,26 @@ var Router = (function () {
                             reject(StatusCode_1.EXIT_APP_PREVENTED);
                         });
                     }
+                }
+            }
+            else if (this.app.getRootNav().canGoBack() == true && _lastpage && _lastpage.root == true && this.canPush(_lastpage.page)['status'] == false) {
+                if (!this.exitCallback || this.exitCallback(event) == true) {
+                    if (emiya_angular2_event_1.Event.emit('appWillExit', event).defaultPrevented == false) {
+                        this.platform.exitApp();
+                        this.pushState(true);
+                        return new Promise(function (resolve, reject) {
+                            resolve(StatusCode_1.APP_EXIT);
+                        });
+                    }
+                    else
+                        return new Promise(function (resolve, reject) {
+                            reject(StatusCode_1.EXIT_APP_PREVENTED);
+                        });
+                }
+                else {
+                    return new Promise(function (resolve, reject) {
+                        reject(StatusCode_1.EXIT_APP_PREVENTED);
+                    });
                 }
             }
             else if ((!currentPage || currentPage.root != true) && this.app.getRootNav().canGoBack() == true) {
