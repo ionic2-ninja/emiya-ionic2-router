@@ -883,26 +883,47 @@ var Router = (function () {
                 }
                 else
                     popPage = this.getRootPageConfig();
-                return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
-                    _this.tokenHook();
-                    _this.cleanupPopStack(null, true);
-                    _this.pushState(true);
-                    if (done)
-                        try {
-                            done(hasCompleted, isAsync, enteringName, leavingName, direction);
+                if (this.canPush(popPage.page)['status'] == true)
+                    return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then(function (hasCompleted, isAsync, enteringName, leavingName, direction) {
+                        _this.tokenHook();
+                        _this.cleanupPopStack(null, true);
+                        _this.pushState(true);
+                        if (done)
+                            try {
+                                done(hasCompleted, isAsync, enteringName, leavingName, direction);
+                            }
+                            catch (e) {
+                                _this.debug(e);
+                            }
+                    })["catch"](function (hasCompleted, isAsync, enteringName, leavingName, direction) {
+                        if (done)
+                            try {
+                                done(hasCompleted, isAsync, enteringName, leavingName, direction);
+                            }
+                            catch (e) {
+                                _this.debug(e);
+                            }
+                    });
+                else {
+                    if (!this.exitCallback || this.exitCallback(event) == true) {
+                        if (emiya_angular2_event_1.Event.emit('appWillExit', event).defaultPrevented == false) {
+                            this.platform.exitApp();
+                            this.pushState(true);
+                            return new Promise(function (resolve, reject) {
+                                resolve(StatusCode_1.APP_EXIT);
+                            });
                         }
-                        catch (e) {
-                            _this.debug(e);
-                        }
-                })["catch"](function (hasCompleted, isAsync, enteringName, leavingName, direction) {
-                    if (done)
-                        try {
-                            done(hasCompleted, isAsync, enteringName, leavingName, direction);
-                        }
-                        catch (e) {
-                            _this.debug(e);
-                        }
-                });
+                        else
+                            return new Promise(function (resolve, reject) {
+                                reject(StatusCode_1.EXIT_APP_PREVENTED);
+                            });
+                    }
+                    else {
+                        return new Promise(function (resolve, reject) {
+                            reject(StatusCode_1.EXIT_APP_PREVENTED);
+                        });
+                    }
+                }
             }
             else if ((!currentPage || currentPage.root != true) && this.app.getRootNav().canGoBack() == true) {
                 if (this.nextPage && this.utils.notNull(this.nextPage.srcPage) && this.app.getRootNav().getPrevious(this.app.getRootNav().last()).instance instanceof this.nextPage.srcPage) {

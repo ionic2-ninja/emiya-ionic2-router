@@ -1027,25 +1027,51 @@ export class Router {
                 }
                 else
                     popPage = this.getRootPageConfig()
-                return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                    this.tokenHook()
-                    this.cleanupPopStack(null, true)
-                    this.pushState(true)
-                    if (done)
-                        try {
-                            done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                        } catch (e) {
-                            this.debug(e)
-                        }
+                if (this.canPush(popPage.page)['status'] == true)
+                    return this.app.getRootNav().push(popPage.page, popPage.params, this.utils.mergeObject(FAKE_POP_ANIMATION, popOptions)).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+                        this.tokenHook()
+                        this.cleanupPopStack(null, true)
+                        this.pushState(true)
+                        if (done)
+                            try {
+                                done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                            } catch (e) {
+                                this.debug(e)
+                            }
 
-                }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
-                    if (done)
-                        try {
-                            done(hasCompleted, isAsync, enteringName, leavingName, direction)
-                        } catch (e) {
-                            this.debug(e)
-                        }
-                });
+                    }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+                        if (done)
+                            try {
+                                done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                            } catch (e) {
+                                this.debug(e)
+                            }
+                    });
+                else {
+                    if (!this.exitCallback || this.exitCallback(event) == true) {
+
+
+                        if (Event.emit('appWillExit', event).defaultPrevented == false) {
+
+                            this.platform.exitApp()
+
+                            this.pushState(true)
+
+
+                            return new Promise((resolve, reject) => {
+
+                                resolve(APP_EXIT)
+                            })
+                        } else
+                            return new Promise((resolve, reject) => {
+                                reject(EXIT_APP_PREVENTED)
+                            })
+                    } else {
+                        return new Promise((resolve, reject) => {
+                            reject(EXIT_APP_PREVENTED)
+                        })
+                    }
+                }
             }
             else if ((!currentPage || currentPage.root != true) && this.app.getRootNav().canGoBack() == true) {
                 if (this.nextPage && this.utils.notNull(this.nextPage.srcPage) && this.app.getRootNav().getPrevious(this.app.getRootNav().last()).instance instanceof this.nextPage.srcPage) {
