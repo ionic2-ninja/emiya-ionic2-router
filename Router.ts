@@ -880,7 +880,7 @@ export class Router {
             } else {
 
 
-                if (isTokenReverse == true && !this.nextPage) {
+                if (isTokenReverse == true && !this.nextPage && pageConfig) {
                     this.nextPage = {
                         srcName: pageConfig.id,
                         srcPage: pageConfig.page,
