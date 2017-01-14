@@ -570,7 +570,7 @@ export class Router {
             if (this.tokenListener)
                 this.tokenListener.unsubscribe();
             this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, () => {
-                if (pageConfig.popOnTokenInvalid == true) {
+                if (pageConfig.popWhenTokenInvalid == true) {
                     //if (this.app.getRootNav().canGoBack() == true)
                     this.pop()
                     // else {

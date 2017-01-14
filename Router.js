@@ -469,7 +469,7 @@ var Router = (function () {
             if (this.tokenListener)
                 this.tokenListener.unsubscribe();
             this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, function () {
-                if (pageConfig.popOnTokenInvalid == true) {
+                if (pageConfig.popWhenTokenInvalid == true) {
                     //if (this.app.getRootNav().canGoBack() == true)
                     _this.pop();
                 }

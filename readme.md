@@ -68,6 +68,16 @@ export const Routes = {
     url: '/PwdLoginPage'，
     title: 'Password Login'
   },
+  
+  //logout page example
+  'Logout': {
+    page: LogoutPage,
+    tokens: ['token', 'uuid'],  
+    tokensLocation: ['local', 'local'], 
+    popWhenTokenInvalid:true,  //when token become invalid,router will try to pop from this page
+    url: '/LogoutPage'，
+    title: 'Logout'
+  },
 
   //login-required page example
   'MyFavour': {
