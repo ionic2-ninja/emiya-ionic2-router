@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+exports.__esModule = true;
 var ionic_angular_1 = require("ionic-angular");
 var core_1 = require("@angular/core");
 var emiya_angular2_token_1 = require("emiya-angular2-token");
@@ -448,6 +449,9 @@ var Router = (function () {
                     _this._push(ev.instance.constructor, ev.data, undefined, undefined, ev['_nav'], !_this.subNavUsePush).then(function () {
                         ev.dismiss(undefined, undefined, CLEANUP_ANIMATE);
                     });
+                    /*ev['_nav'].remove(undefined, undefined, CLEANUP_ANIMATE).then(() => {
+                     this._push(ev.instance.constructor, ev.data, undefined, undefined, ev['_nav'], !this.subNavUsePush)
+                     });*/
                 }
             }
         });
@@ -472,6 +476,14 @@ var Router = (function () {
                 if (pageConfig.popWhenTokenInvalid == true) {
                     //if (this.app.getRootNav().canGoBack() == true)
                     _this.pop();
+                    // else {
+                    //     for (let c in this.config) {
+                    //         if (this.config[c].root == true) {
+                    //             this.push(this.config[c].page, this.config[c].params, this.config[c].options, this.config[c].done)
+                    //             break
+                    //         }
+                    //     }
+                    // }
                 }
                 else
                     _this.push(pageConfig.page, pageConfig.params, pageConfig.options, pageConfig.done);
@@ -1088,6 +1100,30 @@ var Router = (function () {
                         reject(StatusCode_1.EXIT_APP_PREVENTED);
                     });
                 }
+                // return this.app.getRootNav().pop(popOptions).then((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+                //     this.tokenHook()
+                //     if (doNotGoHistory == false) {
+                //         this.disableOnpopstate()
+                //
+                //         this.pushState(true)
+                //
+                //
+                //     }
+                //     if (done)
+                //         try {
+                //             done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                //         } catch (e) {
+                //             this.debug(e)
+                //         }
+                //
+                // }).catch((hasCompleted?, isAsync?, enteringName?, leavingName?, direction?) => {
+                //     if (done)
+                //         try {
+                //             done(hasCompleted, isAsync, enteringName, leavingName, direction)
+                //         } catch (e) {
+                //             this.debug(e)
+                //         }
+                // });
             }
             else {
                 if (!this.exitCallback || this.exitCallback(event) == true) {
@@ -1667,3 +1703,4 @@ Router = __decorate([
     core_1.Injectable()
 ], Router);
 exports.Router = Router;
+//# sourceMappingURL=Router.js.map

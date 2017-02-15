@@ -1,15 +1,15 @@
 {
   "name": "emiya-ionic2-router",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "An ionic2 based router which include url route and intelligent login&route management and many other features..",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "emiya-js-utils": ">=1.0.0",
-    "emiya-angular2-event": ">=1.0.0",
-    "emiya-angular2-token": ">=1.0.0"
+    "emiya-js-utils": ">=1.0.5",
+    "emiya-angular2-event": ">=1.0.5",
+    "emiya-angular2-token": ">=1.0.9"
   },
   "repository": {
     "type": "git",
