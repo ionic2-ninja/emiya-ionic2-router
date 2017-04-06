@@ -29,6 +29,7 @@ var Router = (function () {
         this.platform = platform;
         this.token = emiya_angular2_token_1.Token;
         this.utils = emiya_js_utils_1.Utils;
+        this.tokenListener = null;
         this.ignorePopCount = 0;
         this.tokenHookEnable = true;
         this.pushStateParam = null;
@@ -462,17 +463,29 @@ var Router = (function () {
             return;
         var pageConfig = this.getPageConfig(this.app.getRootNav().last().instance);
         if (pageConfig && pageConfig.reverse == true && pageConfig.tokens) {
-            if (this.tokenListener)
+            if (this.tokenListener != null) {
                 this.tokenListener.unsubscribe();
+                this.tokenListener = null;
+            }
             this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, function () {
+                if (_this.tokenListener != null) {
+                    _this.tokenListener.unsubscribe();
+                    _this.tokenListener = null;
+                }
                 _this.next();
             }, function () {
             }, false);
         }
         else if (pageConfig && pageConfig.reverse != true && pageConfig.tokens) {
-            if (this.tokenListener)
+            if (this.tokenListener != null) {
                 this.tokenListener.unsubscribe();
+                this.tokenListener = null;
+            }
             this.tokenListener = this.token.subscribe(pageConfig.tokens, pageConfig.tokensLocation, function () {
+                if (_this.tokenListener != null) {
+                    _this.tokenListener.unsubscribe();
+                    _this.tokenListener = null;
+                }
                 if (pageConfig.popWhenTokenInvalid == true) {
                     //if (this.app.getRootNav().canGoBack() == true)
                     _this.pop();
