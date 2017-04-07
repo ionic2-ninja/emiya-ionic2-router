@@ -431,7 +431,7 @@ var Router = (function () {
     };
     Router.prototype.viewInterceptor = function () {
         var _this = this;
-        this.app.viewWillEnter.subscribe(function (ev) {
+        this.app.viewDidLoad.subscribe(function (ev) {
             var _nav = ev['_nav'];
             //console.log(312, ev)
             //console.log(123, _nav.remove)

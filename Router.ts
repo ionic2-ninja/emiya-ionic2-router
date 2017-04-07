@@ -526,7 +526,7 @@ export class Router {
     public subNavUsePush = false
 
     private viewInterceptor() {
-        this.app.viewWillEnter.subscribe((ev) => {
+        this.app.viewDidLoad.subscribe((ev) => {
             let _nav = ev['_nav']
             //console.log(312, ev)
             //console.log(123, _nav.remove)

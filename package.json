@@ -1,6 +1,6 @@
 {
   "name": "emiya-ionic2-router",
-  "version": "1.4.3",
+  "version": "1.4.5",
   "description": "An ionic2 based router which include url route and intelligent login&route management and many other features..",
   "main": "index.js",
   "scripts": {
