@@ -15,6 +15,8 @@ var emiya_angular2_token_1 = require("emiya-angular2-token");
 var emiya_js_utils_1 = require("emiya-js-utils");
 var emiya_angular2_event_1 = require("emiya-angular2-event");
 var StatusCode_1 = require("./StatusCode");
+var CanPush_1 = require("./CanPush");
+//import {FunctionExpr} from "../shop/ionic-2.1.13/node_modules/@angular/compiler/src/output/output_ast";
 var DEBUG = true;
 var PUSH_BASE_STATE = false;
 //const PUSH_ANIMATE = {animation: "md-transition"};
@@ -49,9 +51,6 @@ var Router = (function () {
         };
         this.resumeTimeout = -1;
         this.subNavUsePush = false;
-        this.canGoBack = function () {
-            return _this.getGoBackPage().name != null;
-        };
         this.enableOnpopstate();
         this.registerBackButtonAction();
         this.rootOverrideMonitor = this.app.viewWillEnter.subscribe(function (ev) {
@@ -540,12 +539,21 @@ var Router = (function () {
     };
     Router.prototype.canPush = function (name) {
         var pageConfig = this.getPageConfig(name);
+        var result = new CanPush_1.CanPush();
         if (!pageConfig) {
             if (typeof name != 'string') {
-                return { status: true, code: -1, reason: 'Warning:router config missing' };
+                result.status = true;
+                result.code = -1;
+                result.reason = 'Warning:router config missing';
+                return result;
+                //return {status: true, code: -1, reason: 'Warning:router config missing'}
             }
             else {
-                return { status: false, code: -2, reason: 'Error:can not find router config' };
+                result.status = false;
+                result.code = -2;
+                result.reason = 'Error:can not find router config';
+                return result;
+                //return {status: false, code: -2, reason: 'Error:can not find router config'};
             }
         }
         var needRedirect = false, isReversed = false;
@@ -559,16 +567,31 @@ var Router = (function () {
                 needRedirect = true;
         }
         if (needRedirect == true)
-            if (isReversed == false)
-                return {
-                    status: false,
-                    code: -3,
-                    reason: 'Error:will be redirected to other view because of token check failure'
-                };
-            else
-                return { status: false, code: -4, reason: 'Error:will be prevented because of token check failure' };
-        else
-            return { status: true, code: 0, reason: 'Info:ok to push' };
+            if (isReversed == false) {
+                result.status = false;
+                result.code = -3;
+                result.reason = 'Error:will be redirected to other view because of token check failure';
+                return result;
+                // return {
+                //     status: false,
+                //     code: -3,
+                //     reason: 'Error:will be redirected to other view because of token check failure'
+                // }
+            }
+            else {
+                result.status = false;
+                result.code = -4;
+                result.reason = 'Error:will be prevented because of token check failure';
+                return result;
+                //return {status: false, code: -4, reason: 'Error:will be prevented because of token check failure'}
+            }
+        else {
+            result.status = true;
+            result.code = 0;
+            result.reason = 'Info:ok to push';
+            return result;
+            //return {status: true, code: 0, reason: 'Info:ok to push'}
+        }
     };
     Router.prototype.push = function (name, params, options, done) {
         if (options === void 0) { options = PUSH_ANIMATE; }
@@ -919,6 +942,9 @@ var Router = (function () {
         else {
             return { name: null, params: null, component: null };
         }
+    };
+    Router.prototype.canGoBack = function () {
+        return this.getGoBackPage().name != null;
     };
     Router.prototype.getRootPageConfig = function () {
         for (var c in this.config)

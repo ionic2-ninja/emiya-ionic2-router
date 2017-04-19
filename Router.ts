@@ -25,7 +25,9 @@ import {
     MORE_THEN_ONE_ROOT_PAGE_FOUND,
     ROOT_PAGE_NOT_FOUND
 } from './StatusCode'
-import {FunctionExpr} from "../shop/ionic-2.1.13/node_modules/@angular/compiler/src/output/output_ast";
+import {CanPush} from './CanPush';
+import {RouterInterface} from "./RouterInterface";
+//import {FunctionExpr} from "../shop/ionic-2.1.13/node_modules/@angular/compiler/src/output/output_ast";
 
 const DEBUG = true;
 const PUSH_BASE_STATE = false
@@ -35,7 +37,7 @@ const POP_ANIMATE = {updateUrl: false};
 const CLEANUP_ANIMATE = {animate: false, duration: 0, updateUrl: false};
 const FAKE_POP_ANIMATION = {direction: 'back', updateUrl: false}
 
-interface NextPage {
+export interface NextPage {
     srcName: string,
     srcPage: any,
     name: string;
@@ -47,8 +49,9 @@ interface NextPage {
     setRoot: any
 }
 
+
 @Injectable()
-export class Router {
+export class Router implements RouterInterface{
     private static decorators = [
         {type: Injectable},
     ];
@@ -117,7 +120,7 @@ export class Router {
 
     }
 
-    private registerBackButtonAction(backButtonPrior = this.defaultBackButtonPrior) {
+    private registerBackButtonAction(backButtonPrior: number = this.defaultBackButtonPrior) {
         if (this.backButtonCallback)
             this.backButtonCallback()
         this.backButtonCallback = this.platform.registerBackButtonAction(() => {
@@ -376,13 +379,13 @@ export class Router {
         ++this.ignorePopCount
     }
 
-    public setVersion(name: string, increment: number) {
+    public setVersion(name: string, increment: number): void {
         this.packageName = name;
         this.packageVersion = increment;
         this.appVersionSetByManul = true
     }
 
-    public load(config, name: string = null, increment: number = null) {
+    public load(config: any, name: string = null, increment: number = null): Promise<any> {
         if (name != null || increment != null) {
             this.setVersion(name, increment)
         }
@@ -421,18 +424,18 @@ export class Router {
         }
     }
 
-    public getBannedPageConfig(name) {
+    public getBannedPageConfig(name: any): any {
         for (let c in this.banRouter) {
             if ((typeof name == 'string' && this.banRouter[c].id == name) || (name instanceof this.banRouter[c].page) || name === this.banRouter[c].page)
                 return this.banRouter[c]
         }
     }
 
-    public checkIfBanned(name) {
+    public checkIfBanned(name: any): boolean {
         return !(!this.getBannedPageConfig(name))
     }
 
-    public setExitHook(cb, prior) {
+    public setExitHook(cb: Function, prior: number): void {
         this.exitCallback = cb
         this.changeBackButtonPrior(prior)
     }
@@ -453,7 +456,7 @@ export class Router {
         }
     }
 
-    public setNextPage(_config) {
+    public setNextPage(_config): boolean {
         if (this.checkIfBanned(_config.name) != true && this.checkIfBanned(_config.page) != true) {
             this.config = this.utils.deepCopy(_config)
             return true
@@ -644,13 +647,24 @@ export class Router {
 
     }
 
-    public canPush(name) {
+    public canPush(name): CanPush {
         let pageConfig = this.getPageConfig(name)
+
+        let result: CanPush = new CanPush();
+
         if (!pageConfig) {
             if (typeof name != 'string') {
-                return {status: true, code: -1, reason: 'Warning:router config missing'}
+                result.status = true;
+                result.code = -1;
+                result.reason = 'Warning:router config missing';
+                return result;
+                //return {status: true, code: -1, reason: 'Warning:router config missing'}
             } else {
-                return {status: false, code: -2, reason: 'Error:can not find router config'};
+                result.status = false;
+                result.code = -2;
+                result.reason = 'Error:can not find router config';
+                return result;
+                //return {status: false, code: -2, reason: 'Error:can not find router config'};
             }
         }
 
@@ -665,16 +679,31 @@ export class Router {
         }
 
         if (needRedirect == true)
-            if (isReversed == false)
-                return {
-                    status: false,
-                    code: -3,
-                    reason: 'Error:will be redirected to other view because of token check failure'
-                }
-            else
-                return {status: false, code: -4, reason: 'Error:will be prevented because of token check failure'}
-        else
-            return {status: true, code: 0, reason: 'Info:ok to push'}
+            if (isReversed == false) {
+                result.status = false;
+                result.code = -3;
+                result.reason = 'Error:will be redirected to other view because of token check failure';
+                return result;
+                // return {
+                //     status: false,
+                //     code: -3,
+                //     reason: 'Error:will be redirected to other view because of token check failure'
+                // }
+            }
+            else {
+                result.status = false;
+                result.code = -4;
+                result.reason = 'Error:will be prevented because of token check failure';
+                return result;
+                //return {status: false, code: -4, reason: 'Error:will be prevented because of token check failure'}
+            }
+        else {
+            result.status = true;
+            result.code = 0;
+            result.reason = 'Info:ok to push';
+            return result;
+            //return {status: true, code: 0, reason: 'Info:ok to push'}
+        }
 
     }
 
@@ -1073,17 +1102,17 @@ export class Router {
 
     }
 
-    public canGoBack = () => {
+    public canGoBack(): boolean {
         return this.getGoBackPage().name != null
     }
 
-    public getRootPageConfig() {
+    public getRootPageConfig(): any {
         for (let c in this.config)
             if (this.config[c].root = true)
                 return this.config[c]
     }
 
-    public pop(options: any = POP_ANIMATE, done: Function = null, doNotGoHistory = false): Promise<any> {
+    public pop(options: any = POP_ANIMATE, done: Function = null, doNotGoHistory:boolean = false): Promise<any> {
         let popOptions = this.utils.mergeObject(options, POP_ANIMATE), lastPage = this.getGoBackPage(),
             currentPage = this.getPageConfig(this.app.getRootNav().last().instance),
             _lastpage = this.getPageConfig(this.app.getRootNav().getPrevious() ? this.app.getRootNav().getPrevious().instance : null)
@@ -1388,7 +1417,7 @@ export class Router {
 
     }
 
-    public popSafe(options: any = POP_ANIMATE, done: Function = null, doNotGoHistory = false): Promise<any> {
+    public popSafe(options: any = POP_ANIMATE, done: Function = null, doNotGoHistory:boolean = false): Promise<any> {
         if (this.app.getRootNav().isTransitioning(true) == false)
             return this.pop(options, done, doNotGoHistory)
         else {
@@ -1657,7 +1686,7 @@ export class Router {
         return null
     }
 
-    public getNextPage() {
+    public getNextPage():any {
         let currentPage = this.getPageConfig(this.app.getRootNav().last() ? this.app.getRootNav().last().instance : null)
         if (this.nextPage && (!currentPage || !currentPage.next || (currentPage.next.force != true))) {
             return this.utils.deepCopy(this.nextPage)
@@ -1721,7 +1750,7 @@ export class Router {
         }
     }
 
-    public next(config = null): Promise<any> {
+    public next(config:any = null): Promise<any> {
         if (config) {
             if (!this.setNextPage(config))
                 return new Promise((resolve, reject) => {
@@ -1909,7 +1938,7 @@ export class Router {
     }
 
 
-    public setBackgroundTimeout(timeout = -1) {
+    public setBackgroundTimeout(timeout:number = -1):void {
         document.removeEventListener('pause', this.pauseListener0)
         this.backgroundKiller && clearTimeout(this.backgroundKiller)
         this.backgroundKiller = null
@@ -1919,7 +1948,7 @@ export class Router {
         }
     }
 
-    public setResumeTimeout(timeout = -1) {
+    public setResumeTimeout(timeout:number = -1):void {
         this.resumeTimeout = timeout
     }
 
